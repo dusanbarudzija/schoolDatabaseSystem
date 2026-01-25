@@ -26,5 +26,33 @@ namespace SchoolDatabaseSystem
         {
 
         }
+
+        private void groupBox1_Enter(object sender, EventArgs e)
+        {
+
+        }
+
+        //private void textBox1_TextChanged(object sender, EventArgs e)
+        //{
+
+        //}
+
+        private void textBoxCourses_Enter(object sender, EventArgs e)
+        {
+            if(textBoxCourses.Text == "Select courses...") 
+            {
+                textBoxCourses.Text = "";
+                textBoxCourses.ForeColor = Color.Black;
+            }
+        }
+
+        private void textBoxCourses_Leave(object sender, EventArgs e)
+        {
+            if(textBoxCourses.Text == "")
+            {
+                textBoxCourses.Text = "Select courses...";
+                textBoxCourses.ForeColor = Color.Gray;
+            }
+        }
     }
 }
