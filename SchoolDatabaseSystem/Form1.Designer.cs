@@ -38,15 +38,17 @@
             textBoxCourses = new TextBox();
             groupBoxCourses = new GroupBox();
             groupBoxCourseDescription = new GroupBox();
-            label_Code = new Label();
-            label_CourseName = new Label();
-            label_instructor = new Label();
-            label_schedule = new Label();
             label_action = new Label();
+            label_schedule = new Label();
+            label_instructor = new Label();
+            label_CourseName = new Label();
+            label_Code = new Label();
             groupBox_summary = new GroupBox();
             button_clear = new Button();
             button_cancel = new Button();
             button_register = new Button();
+            label_seats = new Label();
+            label4 = new Label();
             groupBoxTerm.SuspendLayout();
             groupBoxCourses.SuspendLayout();
             groupBoxCourseDescription.SuspendLayout();
@@ -56,7 +58,7 @@
             // 
             label1.AutoSize = true;
             label1.Font = new Font("Segoe UI", 10.8F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label1.Location = new Point(28, 14);
+            label1.Location = new Point(8, 24);
             label1.Name = "label1";
             label1.Size = new Size(59, 25);
             label1.TabIndex = 0;
@@ -67,7 +69,7 @@
             // 
             comboBoxTerm.FormattingEnabled = true;
             comboBoxTerm.Items.AddRange(new object[] { "Fall", "Winter", "Spring", "Summer" });
-            comboBoxTerm.Location = new Point(93, 15);
+            comboBoxTerm.Location = new Point(73, 25);
             comboBoxTerm.Name = "comboBoxTerm";
             comboBoxTerm.Size = new Size(108, 28);
             comboBoxTerm.TabIndex = 1;
@@ -77,7 +79,7 @@
             // 
             comboBox1.FormattingEnabled = true;
             comboBox1.Items.AddRange(new object[] { "Need to use sample data to populate" });
-            comboBox1.Location = new Point(322, 15);
+            comboBox1.Location = new Point(302, 25);
             comboBox1.Name = "comboBox1";
             comboBox1.Size = new Size(108, 28);
             comboBox1.TabIndex = 3;
@@ -86,7 +88,7 @@
             // 
             label2.AutoSize = true;
             label2.Font = new Font("Segoe UI", 10.8F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label2.Location = new Point(257, 14);
+            label2.Location = new Point(237, 24);
             label2.Name = "label2";
             label2.Size = new Size(54, 25);
             label2.TabIndex = 2;
@@ -112,7 +114,7 @@
             label3.AutoSize = true;
             label3.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
             label3.ForeColor = Color.DimGray;
-            label3.Location = new Point(26, 23);
+            label3.Location = new Point(6, 23);
             label3.Name = "label3";
             label3.Size = new Size(158, 20);
             label3.TabIndex = 5;
@@ -125,7 +127,7 @@
             comboBox2.AutoCompleteSource = AutoCompleteSource.ListItems;
             comboBox2.FormattingEnabled = true;
             comboBox2.Items.AddRange(new object[] { "All", "Computer Science", "Mathematics", "Physics", "Statistics" });
-            comboBox2.Location = new Point(320, 47);
+            comboBox2.Location = new Point(300, 47);
             comboBox2.Name = "comboBox2";
             comboBox2.Size = new Size(151, 28);
             comboBox2.TabIndex = 6;
@@ -133,7 +135,7 @@
             // 
             // textBoxCourses
             // 
-            textBoxCourses.Location = new Point(26, 50);
+            textBoxCourses.Location = new Point(6, 50);
             textBoxCourses.Name = "textBoxCourses";
             textBoxCourses.Size = new Size(276, 27);
             textBoxCourses.TabIndex = 7;
@@ -150,52 +152,34 @@
             groupBoxCourses.Controls.Add(label3);
             groupBoxCourses.Location = new Point(14, 103);
             groupBoxCourses.Name = "groupBoxCourses";
-            groupBoxCourses.Size = new Size(506, 296);
+            groupBoxCourses.Size = new Size(531, 296);
             groupBoxCourses.TabIndex = 8;
             groupBoxCourses.TabStop = false;
             // 
             // groupBoxCourseDescription
             // 
+            groupBoxCourseDescription.Controls.Add(label4);
+            groupBoxCourseDescription.Controls.Add(label_seats);
             groupBoxCourseDescription.Controls.Add(label_action);
             groupBoxCourseDescription.Controls.Add(label_schedule);
             groupBoxCourseDescription.Controls.Add(label_instructor);
             groupBoxCourseDescription.Controls.Add(label_CourseName);
             groupBoxCourseDescription.Controls.Add(label_Code);
-            groupBoxCourseDescription.Location = new Point(26, 96);
+            groupBoxCourseDescription.Location = new Point(6, 94);
             groupBoxCourseDescription.Name = "groupBoxCourseDescription";
-            groupBoxCourseDescription.Size = new Size(447, 47);
+            groupBoxCourseDescription.Size = new Size(519, 47);
             groupBoxCourseDescription.TabIndex = 8;
             groupBoxCourseDescription.TabStop = false;
             // 
-            // label_Code
+            // label_action
             // 
-            label_Code.AutoSize = true;
-            label_Code.BackColor = Color.Gainsboro;
-            label_Code.Location = new Point(3, 23);
-            label_Code.Name = "label_Code";
-            label_Code.Size = new Size(44, 20);
-            label_Code.TabIndex = 0;
-            label_Code.Text = "Code";
-            // 
-            // label_CourseName
-            // 
-            label_CourseName.AutoSize = true;
-            label_CourseName.BackColor = Color.Gainsboro;
-            label_CourseName.Location = new Point(53, 23);
-            label_CourseName.Name = "label_CourseName";
-            label_CourseName.Size = new Size(98, 20);
-            label_CourseName.TabIndex = 9;
-            label_CourseName.Text = "Course Name";
-            // 
-            // label_instructor
-            // 
-            label_instructor.AutoSize = true;
-            label_instructor.BackColor = Color.Gainsboro;
-            label_instructor.Location = new Point(157, 23);
-            label_instructor.Name = "label_instructor";
-            label_instructor.Size = new Size(71, 20);
-            label_instructor.TabIndex = 10;
-            label_instructor.Text = "Instructor";
+            label_action.AutoSize = true;
+            label_action.BackColor = Color.Gainsboro;
+            label_action.Location = new Point(461, 23);
+            label_action.Name = "label_action";
+            label_action.Size = new Size(52, 20);
+            label_action.TabIndex = 12;
+            label_action.Text = "Action";
             // 
             // label_schedule
             // 
@@ -207,15 +191,35 @@
             label_schedule.TabIndex = 11;
             label_schedule.Text = "Schedule";
             // 
-            // label_action
+            // label_instructor
             // 
-            label_action.AutoSize = true;
-            label_action.BackColor = Color.Gainsboro;
-            label_action.Location = new Point(309, 24);
-            label_action.Name = "label_action";
-            label_action.Size = new Size(52, 20);
-            label_action.TabIndex = 12;
-            label_action.Text = "Action";
+            label_instructor.AutoSize = true;
+            label_instructor.BackColor = Color.Gainsboro;
+            label_instructor.Location = new Point(157, 23);
+            label_instructor.Name = "label_instructor";
+            label_instructor.Size = new Size(71, 20);
+            label_instructor.TabIndex = 10;
+            label_instructor.Text = "Instructor";
+            // 
+            // label_CourseName
+            // 
+            label_CourseName.AutoSize = true;
+            label_CourseName.BackColor = Color.Gainsboro;
+            label_CourseName.Location = new Point(53, 23);
+            label_CourseName.Name = "label_CourseName";
+            label_CourseName.Size = new Size(98, 20);
+            label_CourseName.TabIndex = 9;
+            label_CourseName.Text = "Course Name";
+            // 
+            // label_Code
+            // 
+            label_Code.AutoSize = true;
+            label_Code.BackColor = Color.Gainsboro;
+            label_Code.Location = new Point(3, 23);
+            label_Code.Name = "label_Code";
+            label_Code.Size = new Size(44, 20);
+            label_Code.TabIndex = 0;
+            label_Code.Text = "Code";
             // 
             // groupBox_summary
             // 
@@ -264,6 +268,26 @@
             button_register.Text = "Register for Selected Courses";
             button_register.UseVisualStyleBackColor = false;
             // 
+            // label_seats
+            // 
+            label_seats.AutoSize = true;
+            label_seats.BackColor = Color.Gainsboro;
+            label_seats.Location = new Point(411, 23);
+            label_seats.Name = "label_seats";
+            label_seats.Size = new Size(44, 20);
+            label_seats.TabIndex = 13;
+            label_seats.Text = "Seats";
+            // 
+            // label4
+            // 
+            label4.AutoSize = true;
+            label4.BackColor = Color.Gainsboro;
+            label4.Location = new Point(309, 23);
+            label4.Name = "label4";
+            label4.Size = new Size(93, 20);
+            label4.TabIndex = 13;
+            label4.Text = "Prerequisites";
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
@@ -308,5 +332,7 @@
         private Button button_clear;
         private Button button_cancel;
         private Button button_register;
+        private Label label_seats;
+        private Label label4;
     }
 }

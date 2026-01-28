@@ -1,4 +1,4 @@
-USE UniRegistration
+USE UniRegistration;
 
 -- Drop stored procedure
 IF OBJECT_ID('RegisterStudent', 'P') IS NOT NULL
