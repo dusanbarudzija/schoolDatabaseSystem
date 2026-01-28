@@ -12,10 +12,6 @@ DELETE FROM Instructor;
 DELETE FROM Department;
 DELETE FROM College;
 
-/* ================================
-   INSERT DATA (SAFE ORDER)
-   ================================ */
-
 -- College
 INSERT INTO College (college_id, name)
 VALUES (1, 'MacEwan University');
