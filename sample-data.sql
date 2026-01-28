@@ -1,54 +1,82 @@
--- ===============================================
--- Sample Data Insertions for College Database
--- ===============================================
+USE UniRegistration;
 
-USE UniRegistration 
--- Insert Departments
-INSERT INTO Department (dept_id, name) VALUES (1, 'Computer Science');
-INSERT INTO Department (dept_id, name) VALUES (2, 'Mathematics');
-INSERT INTO Department (dept_id, name) VALUES (3, 'Physics');
+/* ================================
+   CLEAR DATA
+   ================================ */
+DELETE FROM Enrollment;
+DELETE FROM Prerequisite;
+DELETE FROM CourseSchedule;
+DELETE FROM Course;
+DELETE FROM Student;
+DELETE FROM Instructor;
+DELETE FROM Department;
+DELETE FROM College;
 
--- Insert Instructors
-INSERT INTO Instructor (instructor_id, name, dept_id) VALUES (101, 'Alice Smith', 1);
-INSERT INTO Instructor (instructor_id, name, dept_id) VALUES (102, 'Bob Johnson', 1);
-INSERT INTO Instructor (instructor_id, name, dept_id) VALUES (103, 'Carol Lee', 2);
-INSERT INTO Instructor (instructor_id, name, dept_id) VALUES (104, 'David Kim', 3);
+/* ================================
+   INSERT DATA (SAFE ORDER)
+   ================================ */
 
+-- College
+INSERT INTO College (college_id, name)
+VALUES (1, 'MacEwan University');
 
--- Insert Courses
-INSERT INTO Course (course_id, name, dept_id, instructor_id) VALUES (201, 'Intro to Programming', 1, 101);
-INSERT INTO Course (course_id, name, dept_id, instructor_id) VALUES (202, 'Data Structures', 1, 102);
-INSERT INTO Course (course_id, name, dept_id, instructor_id) VALUES (203, 'Calculus I', 2, 103);
-INSERT INTO Course (course_id, name, dept_id, instructor_id) VALUES (204, 'Physics I', 3, 104);
+-- Departments
+INSERT INTO Department (department_id, name, college_id)
+VALUES
+(10, 'Computer Science', 1),
+(20, 'Psychology', 1);
 
--- Insert Students
-INSERT INTO Student (student_id, name, email) VALUES (301, 'Eve Turner', 'eve@example.com');
-INSERT INTO Student (student_id, name, email) VALUES (302, 'Frank Wright', 'frank@example.com');
-INSERT INTO Student (student_id, name, email) VALUES (303, 'Grace Hall', 'grace@example.com');
+-- Instructors
+INSERT INTO Instructor (instructor_id, name, department_id)
+VALUES
+(100, 'Dr. Smith', 10),
+(101, 'Dr. Johnson', 10),
+(200, 'Dr. Brown', 20);
 
--- Enroll Students in Courses
-INSERT INTO Enrollment (enrollment_id, student_id, course_id) VALUES (401, 301, 201);
-INSERT INTO Enrollment (enrollment_id, student_id, course_id) VALUES (402, 301, 203);
-INSERT INTO Enrollment (enrollment_id, student_id, course_id) VALUES (403, 302, 202);
-INSERT INTO Enrollment (enrollment_id, student_id, course_id) VALUES (404, 303, 201);
-INSERT INTO Enrollment (enrollment_id, student_id, course_id) VALUES (405, 303, 204);
+-- Department Heads
+UPDATE Department SET head_instructor_id = 100 WHERE department_id = 10;
+UPDATE Department SET head_instructor_id = 200 WHERE department_id = 20;
 
--- ===============================================
--- Sample Deletions
--- ===============================================
+-- Students
+INSERT INTO Student (student_id, name, year)
+VALUES
+(1000, 'Alice Chen', 2),
+(1001, 'Bob Martin', 3),
+(1002, 'Sarah Khan', 1);
 
--- Delete a student (will automatically remove enrollments if CASCADE is set)
-DELETE FROM Student WHERE student_id = 301;
+-- Courses
+INSERT INTO Course (course_id, course_code, title, department_id, instructor_id, max_capacity)
+VALUES
+(10000, 'COMP101', 'Introduction to Programming', 10, 100, 30),
+(10001, 'COMP202', 'Data Structures', 10, 101, 25),
+(20000, 'PSYC101', 'Introduction to Psychology', 20, 200, 40);
 
--- Delete a course (should remove corresponding enrollments)
-DELETE FROM Course WHERE instructor_id = 101;
+-- Course Schedules
+INSERT INTO CourseSchedule (schedule_id, course_id, day_of_week, start_time, end_time, term)
+VALUES
+(1, 10000, 'Monday', '10:00', '11:20', 'Fall'),
+(2, 10000, 'Wednesday', '10:00', '11:20', 'Fall'),
+(3, 10001, 'Monday', '11:30', '12:50', 'Fall'),
+(4, 10001, 'Wednesday', '11:30', '12:50', 'Fall'),
+(5, 20000, 'Tuesday', '09:00', '10:20', 'Fall'),
+(6, 20000, 'Thursday', '09:00', '10:20', 'Fall');
 
-DELETE FROM Instructor WHERE instructor_id = 101;
+-- Prerequisites
+INSERT INTO Prerequisite (course_id, prerequisite_course_id)
+VALUES (10001, 10000);
 
--- Delete a department (ensure courses and instructors are handled first)
--- Optionally use CASCADE if database supports it
-DELETE FROM Department WHERE dept_id = 3;
+-- Enrollments
+INSERT INTO Enrollment (enrollment_id, student_id, course_id, term)
+VALUES
+(1, 1000, 10000, 'Fall'),
+(2, 1001, 10001, 'Fall'),
+(3, 1002, 20000, 'Fall');
 
--- Delete all enrollments for a student
-DELETE FROM Enrollment WHERE student_id = 303;
-
+SELECT * FROM College;
+SELECT * FROM Department;
+SELECT * FROM Instructor;
+SELECT * FROM Student;
+SELECT * FROM Course;
+SELECT * FROM CourseSchedule;
+SELECT * FROM Prerequisite;
+SELECT * FROM Enrollment;
