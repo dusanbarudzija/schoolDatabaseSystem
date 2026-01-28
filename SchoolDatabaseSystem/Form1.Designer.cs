@@ -30,14 +30,18 @@
         {
             label1 = new Label();
             comboBoxTerm = new ComboBox();
-            comboBox1 = new ComboBox();
+            comboBoxYear = new ComboBox();
             label2 = new Label();
             groupBoxTerm = new GroupBox();
+            comboBoxStudents = new ComboBox();
+            StudentLabel = new Label();
             label3 = new Label();
             comboBox2 = new ComboBox();
             textBoxCourses = new TextBox();
             groupBoxCourses = new GroupBox();
             groupBoxCourseDescription = new GroupBox();
+            label4 = new Label();
+            label_seats = new Label();
             label_action = new Label();
             label_schedule = new Label();
             label_instructor = new Label();
@@ -47,8 +51,6 @@
             button_clear = new Button();
             button_cancel = new Button();
             button_register = new Button();
-            label_seats = new Label();
-            label4 = new Label();
             groupBoxTerm.SuspendLayout();
             groupBoxCourses.SuspendLayout();
             groupBoxCourseDescription.SuspendLayout();
@@ -58,9 +60,9 @@
             // 
             label1.AutoSize = true;
             label1.Font = new Font("Segoe UI", 10.8F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label1.Location = new Point(8, 24);
+            label1.Location = new Point(195, 25);
             label1.Name = "label1";
-            label1.Size = new Size(59, 25);
+            label1.Size = new Size(49, 20);
             label1.TabIndex = 0;
             label1.Text = "Term:";
             label1.Click += label1_Click;
@@ -69,28 +71,28 @@
             // 
             comboBoxTerm.FormattingEnabled = true;
             comboBoxTerm.Items.AddRange(new object[] { "Fall", "Winter", "Spring", "Summer" });
-            comboBoxTerm.Location = new Point(73, 25);
+            comboBoxTerm.Location = new Point(250, 22);
             comboBoxTerm.Name = "comboBoxTerm";
-            comboBoxTerm.Size = new Size(108, 28);
+            comboBoxTerm.Size = new Size(108, 23);
             comboBoxTerm.TabIndex = 1;
             comboBoxTerm.SelectedIndexChanged += comboBox1_SelectedIndexChanged;
             // 
-            // comboBox1
+            // comboBoxYear
             // 
-            comboBox1.FormattingEnabled = true;
-            comboBox1.Items.AddRange(new object[] { "Need to use sample data to populate" });
-            comboBox1.Location = new Point(302, 25);
-            comboBox1.Name = "comboBox1";
-            comboBox1.Size = new Size(108, 28);
-            comboBox1.TabIndex = 3;
+            comboBoxYear.FormattingEnabled = true;
+            comboBoxYear.Items.AddRange(new object[] { "Need to use sample data to populate" });
+            comboBoxYear.Location = new Point(419, 22);
+            comboBoxYear.Name = "comboBoxYear";
+            comboBoxYear.Size = new Size(108, 23);
+            comboBoxYear.TabIndex = 3;
             // 
             // label2
             // 
             label2.AutoSize = true;
             label2.Font = new Font("Segoe UI", 10.8F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label2.Location = new Point(237, 24);
+            label2.Location = new Point(369, 25);
             label2.Name = "label2";
-            label2.Size = new Size(54, 25);
+            label2.Size = new Size(44, 20);
             label2.TabIndex = 2;
             label2.Text = "Year:";
             label2.Click += label2_Click;
@@ -98,7 +100,9 @@
             // groupBoxTerm
             // 
             groupBoxTerm.BackColor = Color.Gainsboro;
-            groupBoxTerm.Controls.Add(comboBox1);
+            groupBoxTerm.Controls.Add(comboBoxStudents);
+            groupBoxTerm.Controls.Add(StudentLabel);
+            groupBoxTerm.Controls.Add(comboBoxYear);
             groupBoxTerm.Controls.Add(label2);
             groupBoxTerm.Controls.Add(comboBoxTerm);
             groupBoxTerm.Controls.Add(label1);
@@ -109,6 +113,26 @@
             groupBoxTerm.TabStop = false;
             groupBoxTerm.Enter += groupBox1_Enter;
             // 
+            // comboBoxStudents
+            // 
+            comboBoxStudents.FormattingEnabled = true;
+            comboBoxStudents.Items.AddRange(new object[] { "Need to use sample data to populate" });
+            comboBoxStudents.Location = new Point(79, 22);
+            comboBoxStudents.Name = "comboBoxStudents";
+            comboBoxStudents.Size = new Size(108, 23);
+            comboBoxStudents.TabIndex = 5;
+            comboBoxStudents.SelectedIndexChanged += comboBox3_SelectedIndexChanged;
+            // 
+            // StudentLabel
+            // 
+            StudentLabel.AutoSize = true;
+            StudentLabel.Font = new Font("Segoe UI", 10.8F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            StudentLabel.Location = new Point(5, 25);
+            StudentLabel.Name = "StudentLabel";
+            StudentLabel.Size = new Size(68, 20);
+            StudentLabel.TabIndex = 4;
+            StudentLabel.Text = "Student:";
+            // 
             // label3
             // 
             label3.AutoSize = true;
@@ -116,7 +140,7 @@
             label3.ForeColor = Color.DimGray;
             label3.Location = new Point(6, 23);
             label3.Name = "label3";
-            label3.Size = new Size(158, 20);
+            label3.Size = new Size(123, 15);
             label3.TabIndex = 5;
             label3.Text = "AVAILABLE COURSES";
             label3.Click += label3_Click;
@@ -129,7 +153,7 @@
             comboBox2.Items.AddRange(new object[] { "All", "Computer Science", "Mathematics", "Physics", "Statistics" });
             comboBox2.Location = new Point(300, 47);
             comboBox2.Name = "comboBox2";
-            comboBox2.Size = new Size(151, 28);
+            comboBox2.Size = new Size(151, 23);
             comboBox2.TabIndex = 6;
             comboBox2.Text = "All";
             // 
@@ -137,7 +161,7 @@
             // 
             textBoxCourses.Location = new Point(6, 50);
             textBoxCourses.Name = "textBoxCourses";
-            textBoxCourses.Size = new Size(276, 27);
+            textBoxCourses.Size = new Size(276, 23);
             textBoxCourses.TabIndex = 7;
             textBoxCourses.Text = "Search courses...";
             textBoxCourses.Enter += textBoxCourses_Enter;
@@ -171,13 +195,33 @@
             groupBoxCourseDescription.TabIndex = 8;
             groupBoxCourseDescription.TabStop = false;
             // 
+            // label4
+            // 
+            label4.AutoSize = true;
+            label4.BackColor = Color.Gainsboro;
+            label4.Location = new Point(309, 23);
+            label4.Name = "label4";
+            label4.Size = new Size(74, 15);
+            label4.TabIndex = 13;
+            label4.Text = "Prerequisites";
+            // 
+            // label_seats
+            // 
+            label_seats.AutoSize = true;
+            label_seats.BackColor = Color.Gainsboro;
+            label_seats.Location = new Point(411, 23);
+            label_seats.Name = "label_seats";
+            label_seats.Size = new Size(34, 15);
+            label_seats.TabIndex = 13;
+            label_seats.Text = "Seats";
+            // 
             // label_action
             // 
             label_action.AutoSize = true;
             label_action.BackColor = Color.Gainsboro;
             label_action.Location = new Point(461, 23);
             label_action.Name = "label_action";
-            label_action.Size = new Size(52, 20);
+            label_action.Size = new Size(42, 15);
             label_action.TabIndex = 12;
             label_action.Text = "Action";
             // 
@@ -187,7 +231,7 @@
             label_schedule.BackColor = Color.Gainsboro;
             label_schedule.Location = new Point(234, 24);
             label_schedule.Name = "label_schedule";
-            label_schedule.Size = new Size(69, 20);
+            label_schedule.Size = new Size(55, 15);
             label_schedule.TabIndex = 11;
             label_schedule.Text = "Schedule";
             // 
@@ -197,7 +241,7 @@
             label_instructor.BackColor = Color.Gainsboro;
             label_instructor.Location = new Point(157, 23);
             label_instructor.Name = "label_instructor";
-            label_instructor.Size = new Size(71, 20);
+            label_instructor.Size = new Size(58, 15);
             label_instructor.TabIndex = 10;
             label_instructor.Text = "Instructor";
             // 
@@ -207,7 +251,7 @@
             label_CourseName.BackColor = Color.Gainsboro;
             label_CourseName.Location = new Point(53, 23);
             label_CourseName.Name = "label_CourseName";
-            label_CourseName.Size = new Size(98, 20);
+            label_CourseName.Size = new Size(79, 15);
             label_CourseName.TabIndex = 9;
             label_CourseName.Text = "Course Name";
             // 
@@ -217,7 +261,7 @@
             label_Code.BackColor = Color.Gainsboro;
             label_Code.Location = new Point(3, 23);
             label_Code.Name = "label_Code";
-            label_Code.Size = new Size(44, 20);
+            label_Code.Size = new Size(35, 15);
             label_Code.TabIndex = 0;
             label_Code.Text = "Code";
             // 
@@ -268,29 +312,9 @@
             button_register.Text = "Register for Selected Courses";
             button_register.UseVisualStyleBackColor = false;
             // 
-            // label_seats
-            // 
-            label_seats.AutoSize = true;
-            label_seats.BackColor = Color.Gainsboro;
-            label_seats.Location = new Point(411, 23);
-            label_seats.Name = "label_seats";
-            label_seats.Size = new Size(44, 20);
-            label_seats.TabIndex = 13;
-            label_seats.Text = "Seats";
-            // 
-            // label4
-            // 
-            label4.AutoSize = true;
-            label4.BackColor = Color.Gainsboro;
-            label4.Location = new Point(309, 23);
-            label4.Name = "label4";
-            label4.Size = new Size(93, 20);
-            label4.TabIndex = 13;
-            label4.Text = "Prerequisites";
-            // 
             // Form1
             // 
-            AutoScaleDimensions = new SizeF(8F, 20F);
+            AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
             Controls.Add(button_register);
@@ -315,7 +339,7 @@
 
         private Label label1;
         private ComboBox comboBoxTerm;
-        private ComboBox comboBox1;
+        private ComboBox comboBoxYear;
         private Label label2;
         private GroupBox groupBoxTerm;
         private Label label3;
@@ -334,5 +358,7 @@
         private Button button_register;
         private Label label_seats;
         private Label label4;
+        private ComboBox comboBoxStudents;
+        private Label StudentLabel;
     }
 }
