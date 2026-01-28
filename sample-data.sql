@@ -41,7 +41,7 @@ INSERT INTO Enrollment (enrollment_id, student_id, course_id) VALUES (405, 303, 
 DELETE FROM Student WHERE student_id = 301;
 
 -- Delete a course (should remove corresponding enrollments)
-DELETE FROM Course WHERE course_id = 202;
+DELETE FROM Course WHERE instructor_id = 101;
 
 DELETE FROM Instructor WHERE instructor_id = 101;
 
