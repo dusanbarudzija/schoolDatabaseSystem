@@ -1,7 +1,21 @@
--- ===============================================
--- Sample Data Insertions for College Database
--- ===============================================
+USE UniRegistration;
+GO
 
+-- 1. Create tables (your schema)
+-- ... your CREATE TABLE statements here ...
+GO
+
+-- 2. Insert sample data
+INSERT INTO Department (dept_id, name) VALUES (1, 'Computer Science');
+INSERT INTO Department (dept_id, name) VALUES (2, 'Mathematics');
+INSERT INTO Department (dept_id, name) VALUES (3, 'Physics');
+
+INSERT INTO Instructor (instructor_id, name, dept_id) VALUES (101, 'Alice Smith', 1);
+INSERT INTO Instructor (instructor_id, name, dept_id) VALUES (102, 'Bob Johnson', 1);
+INSERT INTO Instructor (instructor_id, name, dept_id) VALUES (103, 'Carol Lee', 2);
+INSERT INTO Instructor (instructor_id, name, dept_id) VALUES (104, 'David Kim', 3);
+
+INSERT INTO Course (course_id, name, dept_id, instructor_id) VALUES (201, 'Intro to Programming', 1, 101);
 USE UniRegistration 
 -- Insert Departments
 INSERT INTO Department (dept_id, name) VALUES (1, 'Computer Science');
