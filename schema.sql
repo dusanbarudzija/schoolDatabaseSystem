@@ -10,6 +10,8 @@ DROP TABLE IF EXISTS Instructor;
 DROP TABLE IF EXISTS Department;
 DROP TABLE IF EXISTS College;
 
+DROP VIEW vw_CourseAvailability;
+
 CREATE TABLE College (
     college_id INT PRIMARY KEY,
     name VARCHAR(100) NOT NULL
@@ -111,3 +113,4 @@ GROUP BY
     cs.section_number,
     cs.max_capacity;
 GO
+

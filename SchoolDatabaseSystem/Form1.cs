@@ -60,16 +60,16 @@ namespace SchoolDatabaseSystem
                 // Materialized view
                 string query = @"
         SELECT
-            v.section_id,
-            c.course_code,
-            c.title,
-            v.section_number,
-            i.name AS instructor,
-            v.seats_remaining
-        FROM vw_CourseAvailability v
-        JOIN Course c ON v.course_id = c.course_id
-        JOIN Instructor i ON v.instructor_id = i.instructor_id
-        WHERE v.term = @term AND v.year = @year";
+            vw.section_id,
+            cs.course_code,
+            cs.title,
+            vw.section_number,
+            inst.name AS instructor,
+            vw.seats_remaining
+        FROM vw_CourseAvailability vw
+        JOIN Course cs ON vw.course_id = cs.course_id
+        JOIN Instructor inst ON vw.instructor_id = inst.instructor_id
+        WHERE vw.term = @term AND vw.year = @year";
 
                 SqlDataAdapter adapter = new SqlDataAdapter(query, conn);
                 adapter.SelectCommand.Parameters.AddWithValue("@term", comboBoxTerm.SelectedItem.ToString());
