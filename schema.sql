@@ -85,3 +85,29 @@ CREATE TABLE Enrollment (
     FOREIGN KEY (section_id) REFERENCES CourseSection(section_id),
     UNIQUE (student_id, section_id)
 );
+
+-- Materialized view for Sections
+CREATE VIEW vw_CourseAvailability
+WITH SCHEMABINDING  -- Required for indexed views
+AS
+SELECT 
+    cs.section_id,
+    cs.course_id,
+    cs.instructor_id,
+    cs.term,
+    cs.year,
+    cs.section_number,
+    cs.max_capacity,
+    COUNT_BIG(e.enrollment_id) AS enrolled_count, 
+    cs.max_capacity - COUNT_BIG(e.enrollment_id) AS seats_remaining
+FROM dbo.CourseSection cs 
+LEFT JOIN dbo.Enrollment e ON cs.section_id = e.section_id
+GROUP BY 
+    cs.section_id,
+    cs.course_id,
+    cs.instructor_id,
+    cs.term,
+    cs.year,
+    cs.section_number,
+    cs.max_capacity;
+GO

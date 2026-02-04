@@ -57,21 +57,19 @@ namespace SchoolDatabaseSystem
 
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
+                // Materialized view
                 string query = @"
         SELECT
-            cs.section_id,
+            v.section_id,
             c.course_code,
             c.title,
-            cs.section_number,
+            v.section_number,
             i.name AS instructor,
-            cs.max_capacity -
-                (SELECT COUNT(*) FROM Enrollment e WHERE e.section_id = cs.section_id)
-                AS seats_remaining
-        FROM CourseSection cs
-        JOIN Course c ON cs.course_id = c.course_id
-        JOIN Instructor i ON cs.instructor_id = i.instructor_id
-        WHERE cs.term = @term
-          AND cs.year = @year";
+            v.seats_remaining
+        FROM vw_CourseAvailability v
+        JOIN Course c ON v.course_id = c.course_id
+        JOIN Instructor i ON v.instructor_id = i.instructor_id
+        WHERE v.term = @term AND v.year = @year";
 
                 SqlDataAdapter adapter = new SqlDataAdapter(query, conn);
                 adapter.SelectCommand.Parameters.AddWithValue("@term", comboBoxTerm.SelectedItem.ToString());
@@ -322,13 +320,6 @@ namespace SchoolDatabaseSystem
             int sectionId = Convert.ToInt32(
                 dataGridViewCourses.SelectedRows[0].Cells["section_id"].Value
             );
-
-            // STEP 1: already enrolled check
-            if (IsAlreadyEnrolled(studentId, sectionId))
-            {
-                MessageBox.Show("Student is already enrolled in this course section.");
-                return;
-            }
 
             RegisterStudent(studentId, sectionId);
             LoadAvailableSections();
