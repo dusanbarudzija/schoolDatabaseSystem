@@ -1,5 +1,6 @@
 USE UniRegistration;
 
+DROP TABLE IF EXISTS Cart
 DROP TABLE IF EXISTS Enrollment;
 DROP TABLE IF EXISTS CourseSchedule;
 DROP TABLE IF EXISTS CourseSection;
@@ -84,4 +85,13 @@ CREATE TABLE Enrollment (
     FOREIGN KEY (student_id) REFERENCES Student(student_id),
     FOREIGN KEY (section_id) REFERENCES CourseSection(section_id),
     UNIQUE (student_id, section_id)
+);
+
+CREATE TABLE Cart (
+    cart_id INT IDENTITY PRIMARY KEY,
+    student_id INT NOT NULL,
+    section_id INT NOT NULL,
+    UNIQUE(student_id, section_id),
+    FOREIGN KEY (student_id) REFERENCES Student(student_id),
+    FOREIGN KEY (section_id) REFERENCES CourseSection(section_id)
 );
