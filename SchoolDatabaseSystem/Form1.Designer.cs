@@ -33,7 +33,9 @@
             comboBoxYear = new ComboBox();
             label2 = new Label();
             groupBoxTerm = new GroupBox();
-            studentCourseCheckBox = new CheckBox();
+            radioAvailable = new RadioButton();
+            radioCart = new RadioButton();
+            radioStudent = new RadioButton();
             comboBoxStudents = new ComboBox();
             StudentLabel = new Label();
             label3 = new Label();
@@ -53,7 +55,9 @@
             dataGridViewSchedule = new DataGridView();
             button_clear = new Button();
             button_cancel = new Button();
-            buttonRegister = new Button();
+            buttonAddToCart = new Button();
+            buttonRegisterCart = new Button();
+            buttonReturnCourse = new Button();
             groupBoxTerm.SuspendLayout();
             groupBoxCourses.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dataGridViewCourses).BeginInit();
@@ -105,7 +109,9 @@
             // groupBoxTerm
             // 
             groupBoxTerm.BackColor = Color.Gainsboro;
-            groupBoxTerm.Controls.Add(studentCourseCheckBox);
+            groupBoxTerm.Controls.Add(radioAvailable);
+            groupBoxTerm.Controls.Add(radioCart);
+            groupBoxTerm.Controls.Add(radioStudent);
             groupBoxTerm.Controls.Add(comboBoxStudents);
             groupBoxTerm.Controls.Add(StudentLabel);
             groupBoxTerm.Controls.Add(comboBoxYear);
@@ -119,16 +125,41 @@
             groupBoxTerm.TabStop = false;
             groupBoxTerm.Enter += groupBox1_Enter;
             // 
-            // studentCourseCheckBox
+            // radioAvailable
             // 
-            studentCourseCheckBox.AutoSize = true;
-            studentCourseCheckBox.Location = new Point(962, 22);
-            studentCourseCheckBox.Name = "studentCourseCheckBox";
-            studentCourseCheckBox.Size = new Size(152, 19);
-            studentCourseCheckBox.TabIndex = 6;
-            studentCourseCheckBox.Text = "Show Student's Courses";
-            studentCourseCheckBox.UseVisualStyleBackColor = true;
-            studentCourseCheckBox.CheckedChanged += studentCourseCheckBox_CheckedChanged;
+            radioAvailable.AutoSize = true;
+            radioAvailable.Location = new Point(782, 22);
+            radioAvailable.Name = "radioAvailable";
+            radioAvailable.Size = new Size(118, 19);
+            radioAvailable.TabIndex = 9;
+            radioAvailable.TabStop = true;
+            radioAvailable.Text = "Available Courses";
+            radioAvailable.UseVisualStyleBackColor = true;
+            radioAvailable.CheckedChanged += radioAvailable_CheckedChanged;
+            // 
+            // radioCart
+            // 
+            radioCart.AutoSize = true;
+            radioCart.Location = new Point(906, 22);
+            radioCart.Name = "radioCart";
+            radioCart.Size = new Size(91, 19);
+            radioCart.TabIndex = 8;
+            radioCart.TabStop = true;
+            radioCart.Text = "Student Cart";
+            radioCart.UseVisualStyleBackColor = true;
+            radioCart.CheckedChanged += radioCart_CheckedChanged;
+            // 
+            // radioStudent
+            // 
+            radioStudent.AutoSize = true;
+            radioStudent.Location = new Point(1003, 22);
+            radioStudent.Name = "radioStudent";
+            radioStudent.Size = new Size(111, 19);
+            radioStudent.TabIndex = 7;
+            radioStudent.TabStop = true;
+            radioStudent.Text = "Student Courses";
+            radioStudent.UseVisualStyleBackColor = true;
+            radioStudent.CheckedChanged += studentRadioButton_CheckedChanged;
             // 
             // comboBoxStudents
             // 
@@ -319,7 +350,7 @@
             button_clear.BackColor = SystemColors.ControlDark;
             button_clear.FlatAppearance.BorderColor = SystemColors.ActiveBorder;
             button_clear.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            button_clear.Location = new Point(651, 405);
+            button_clear.Location = new Point(481, 406);
             button_clear.Name = "button_clear";
             button_clear.Size = new Size(144, 39);
             button_clear.TabIndex = 10;
@@ -332,7 +363,7 @@
             button_cancel.BackColor = SystemColors.ControlDark;
             button_cancel.FlatAppearance.BorderColor = SystemColors.ActiveBorder;
             button_cancel.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            button_cancel.Location = new Point(801, 406);
+            button_cancel.Location = new Point(631, 406);
             button_cancel.Name = "button_cancel";
             button_cancel.Size = new Size(109, 39);
             button_cancel.TabIndex = 11;
@@ -340,25 +371,54 @@
             button_cancel.UseVisualStyleBackColor = false;
             button_cancel.Visible = false;
             // 
-            // buttonRegister
+            // buttonAddToCart
             // 
-            buttonRegister.BackColor = SystemColors.MenuHighlight;
-            buttonRegister.FlatAppearance.BorderColor = SystemColors.ActiveBorder;
-            buttonRegister.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            buttonRegister.Location = new Point(916, 406);
-            buttonRegister.Name = "buttonRegister";
-            buttonRegister.Size = new Size(228, 39);
-            buttonRegister.TabIndex = 12;
-            buttonRegister.Text = "Register for Selected Courses";
-            buttonRegister.UseVisualStyleBackColor = false;
-            buttonRegister.Click += buttonRegister_Click;
+            buttonAddToCart.BackColor = SystemColors.MenuHighlight;
+            buttonAddToCart.FlatAppearance.BorderColor = SystemColors.ActiveBorder;
+            buttonAddToCart.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            buttonAddToCart.Location = new Point(1008, 399);
+            buttonAddToCart.Name = "buttonAddToCart";
+            buttonAddToCart.Size = new Size(118, 39);
+            buttonAddToCart.TabIndex = 12;
+            buttonAddToCart.Text = "Add to Cart";
+            buttonAddToCart.UseVisualStyleBackColor = false;
+            buttonAddToCart.Click += buttonAddToCart_Click;
+            // 
+            // buttonRegisterCart
+            // 
+            buttonRegisterCart.BackColor = SystemColors.MenuHighlight;
+            buttonRegisterCart.FlatAppearance.BorderColor = SystemColors.ActiveBorder;
+            buttonRegisterCart.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            buttonRegisterCart.Location = new Point(1008, 399);
+            buttonRegisterCart.Name = "buttonRegisterCart";
+            buttonRegisterCart.Size = new Size(118, 39);
+            buttonRegisterCart.TabIndex = 13;
+            buttonRegisterCart.Text = "Register Course";
+            buttonRegisterCart.UseVisualStyleBackColor = false;
+            buttonRegisterCart.Click += buttonRegisterCart_Click;
+            // 
+            // buttonReturnCourse
+            // 
+            buttonReturnCourse.BackColor = SystemColors.ControlDark;
+            buttonReturnCourse.FlatAppearance.BorderColor = SystemColors.ActiveBorder;
+            buttonReturnCourse.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            buttonReturnCourse.Location = new Point(893, 399);
+            buttonReturnCourse.Name = "buttonReturnCourse";
+            buttonReturnCourse.Size = new Size(109, 39);
+            buttonReturnCourse.TabIndex = 14;
+            buttonReturnCourse.Text = "Return Course";
+            buttonReturnCourse.UseVisualStyleBackColor = false;
+            buttonReturnCourse.Visible = false;
+            buttonReturnCourse.Click += buttonReturnCourse_Click;
             // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1230, 453);
-            Controls.Add(buttonRegister);
+            Controls.Add(buttonAddToCart);
+            Controls.Add(buttonReturnCourse);
+            Controls.Add(buttonRegisterCart);
             Controls.Add(button_cancel);
             Controls.Add(button_clear);
             Controls.Add(groupBox_summary);
@@ -399,13 +459,17 @@
         private GroupBox groupBox_summary;
         private Button button_clear;
         private Button button_cancel;
-        private Button buttonRegister;
+        private Button buttonAddToCart;
         private Label label_seats;
         private Label label4;
         private ComboBox comboBoxStudents;
         private Label StudentLabel;
         private DataGridView dataGridViewCourses;
-        private CheckBox studentCourseCheckBox;
         private DataGridView dataGridViewSchedule;
+        private RadioButton radioStudent;
+        private Button buttonRegisterCart;
+        private Button buttonReturnCourse;
+        private RadioButton radioCart;
+        private RadioButton radioAvailable;
     }
 }
