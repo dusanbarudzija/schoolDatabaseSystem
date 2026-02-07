@@ -72,7 +72,7 @@
             label1.Font = new Font("Segoe UI", 10.8F, FontStyle.Bold, GraphicsUnit.Point, 0);
             label1.Location = new Point(195, 25);
             label1.Name = "label1";
-            label1.Size = new Size(49, 20);
+            label1.Size = new Size(59, 25);
             label1.TabIndex = 0;
             label1.Text = "Term:";
             // 
@@ -82,7 +82,7 @@
             comboBoxTerm.Items.AddRange(new object[] { "Fall", "Winter", "Spring", "Summer" });
             comboBoxTerm.Location = new Point(250, 22);
             comboBoxTerm.Name = "comboBoxTerm";
-            comboBoxTerm.Size = new Size(108, 23);
+            comboBoxTerm.Size = new Size(108, 28);
             comboBoxTerm.TabIndex = 1;
             comboBoxTerm.SelectedIndexChanged += comboBoxTerm_SelectedIndexChanged;
             // 
@@ -92,7 +92,7 @@
             comboBoxYear.Items.AddRange(new object[] { "Need to use sample data to populate" });
             comboBoxYear.Location = new Point(419, 22);
             comboBoxYear.Name = "comboBoxYear";
-            comboBoxYear.Size = new Size(108, 23);
+            comboBoxYear.Size = new Size(108, 28);
             comboBoxYear.TabIndex = 3;
             comboBoxYear.SelectedIndexChanged += comboBoxYear_SelectedIndexChanged;
             // 
@@ -102,7 +102,7 @@
             label2.Font = new Font("Segoe UI", 10.8F, FontStyle.Bold, GraphicsUnit.Point, 0);
             label2.Location = new Point(369, 25);
             label2.Name = "label2";
-            label2.Size = new Size(44, 20);
+            label2.Size = new Size(54, 25);
             label2.TabIndex = 2;
             label2.Text = "Year:";
             // 
@@ -130,7 +130,7 @@
             radioAvailable.AutoSize = true;
             radioAvailable.Location = new Point(782, 22);
             radioAvailable.Name = "radioAvailable";
-            radioAvailable.Size = new Size(118, 19);
+            radioAvailable.Size = new Size(147, 24);
             radioAvailable.TabIndex = 9;
             radioAvailable.TabStop = true;
             radioAvailable.Text = "Available Courses";
@@ -142,7 +142,7 @@
             radioCart.AutoSize = true;
             radioCart.Location = new Point(906, 22);
             radioCart.Name = "radioCart";
-            radioCart.Size = new Size(91, 19);
+            radioCart.Size = new Size(112, 24);
             radioCart.TabIndex = 8;
             radioCart.TabStop = true;
             radioCart.Text = "Student Cart";
@@ -154,7 +154,7 @@
             radioStudent.AutoSize = true;
             radioStudent.Location = new Point(1003, 22);
             radioStudent.Name = "radioStudent";
-            radioStudent.Size = new Size(111, 19);
+            radioStudent.Size = new Size(136, 24);
             radioStudent.TabIndex = 7;
             radioStudent.TabStop = true;
             radioStudent.Text = "Student Courses";
@@ -167,7 +167,7 @@
             comboBoxStudents.Items.AddRange(new object[] { "Need to use sample data to populate" });
             comboBoxStudents.Location = new Point(79, 22);
             comboBoxStudents.Name = "comboBoxStudents";
-            comboBoxStudents.Size = new Size(108, 23);
+            comboBoxStudents.Size = new Size(108, 28);
             comboBoxStudents.TabIndex = 5;
             comboBoxStudents.SelectedIndexChanged += comboBox3_SelectedIndexChanged;
             // 
@@ -177,7 +177,7 @@
             StudentLabel.Font = new Font("Segoe UI", 10.8F, FontStyle.Bold, GraphicsUnit.Point, 0);
             StudentLabel.Location = new Point(5, 25);
             StudentLabel.Name = "StudentLabel";
-            StudentLabel.Size = new Size(68, 20);
+            StudentLabel.Size = new Size(84, 25);
             StudentLabel.TabIndex = 4;
             StudentLabel.Text = "Student:";
             // 
@@ -188,7 +188,7 @@
             label3.ForeColor = Color.DimGray;
             label3.Location = new Point(6, 19);
             label3.Name = "label3";
-            label3.Size = new Size(123, 15);
+            label3.Size = new Size(158, 20);
             label3.TabIndex = 5;
             label3.Text = "AVAILABLE COURSES";
             // 
@@ -200,7 +200,7 @@
             comboBox2.Items.AddRange(new object[] { "All", "Computer Science", "Mathematics", "Physics", "Statistics" });
             comboBox2.Location = new Point(300, 47);
             comboBox2.Name = "comboBox2";
-            comboBox2.Size = new Size(151, 23);
+            comboBox2.Size = new Size(151, 28);
             comboBox2.TabIndex = 6;
             comboBox2.Text = "All";
             comboBox2.Visible = false;
@@ -209,7 +209,7 @@
             // 
             textBoxCourses.Location = new Point(6, 50);
             textBoxCourses.Name = "textBoxCourses";
-            textBoxCourses.Size = new Size(276, 23);
+            textBoxCourses.Size = new Size(276, 27);
             textBoxCourses.TabIndex = 7;
             textBoxCourses.Text = "Search courses...";
             textBoxCourses.Visible = false;
@@ -235,6 +235,7 @@
             dataGridViewCourses.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dataGridViewCourses.Location = new Point(4, 47);
             dataGridViewCourses.Name = "dataGridViewCourses";
+            dataGridViewCourses.RowHeadersWidth = 51;
             dataGridViewCourses.Size = new Size(666, 243);
             dataGridViewCourses.TabIndex = 13;
             dataGridViewCourses.SelectionChanged += dataGridViewCourses_SelectionChanged;
@@ -261,7 +262,7 @@
             label4.BackColor = Color.Gainsboro;
             label4.Location = new Point(309, 23);
             label4.Name = "label4";
-            label4.Size = new Size(74, 15);
+            label4.Size = new Size(93, 20);
             label4.TabIndex = 13;
             label4.Text = "Prerequisites";
             // 
@@ -271,7 +272,7 @@
             label_seats.BackColor = Color.Gainsboro;
             label_seats.Location = new Point(411, 23);
             label_seats.Name = "label_seats";
-            label_seats.Size = new Size(34, 15);
+            label_seats.Size = new Size(44, 20);
             label_seats.TabIndex = 13;
             label_seats.Text = "Seats";
             // 
@@ -281,7 +282,7 @@
             label_action.BackColor = Color.Gainsboro;
             label_action.Location = new Point(461, 23);
             label_action.Name = "label_action";
-            label_action.Size = new Size(42, 15);
+            label_action.Size = new Size(52, 20);
             label_action.TabIndex = 12;
             label_action.Text = "Action";
             // 
@@ -291,7 +292,7 @@
             label_schedule.BackColor = Color.Gainsboro;
             label_schedule.Location = new Point(234, 24);
             label_schedule.Name = "label_schedule";
-            label_schedule.Size = new Size(55, 15);
+            label_schedule.Size = new Size(69, 20);
             label_schedule.TabIndex = 11;
             label_schedule.Text = "Schedule";
             // 
@@ -301,7 +302,7 @@
             label_instructor.BackColor = Color.Gainsboro;
             label_instructor.Location = new Point(157, 23);
             label_instructor.Name = "label_instructor";
-            label_instructor.Size = new Size(58, 15);
+            label_instructor.Size = new Size(71, 20);
             label_instructor.TabIndex = 10;
             label_instructor.Text = "Instructor";
             // 
@@ -311,7 +312,7 @@
             label_CourseName.BackColor = Color.Gainsboro;
             label_CourseName.Location = new Point(53, 23);
             label_CourseName.Name = "label_CourseName";
-            label_CourseName.Size = new Size(79, 15);
+            label_CourseName.Size = new Size(98, 20);
             label_CourseName.TabIndex = 9;
             label_CourseName.Text = "Course Name";
             // 
@@ -321,7 +322,7 @@
             label_Code.BackColor = Color.Gainsboro;
             label_Code.Location = new Point(3, 23);
             label_Code.Name = "label_Code";
-            label_Code.Size = new Size(35, 15);
+            label_Code.Size = new Size(44, 20);
             label_Code.TabIndex = 0;
             label_Code.Text = "Code";
             // 
@@ -342,6 +343,7 @@
             dataGridViewSchedule.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dataGridViewSchedule.Location = new Point(6, 47);
             dataGridViewSchedule.Name = "dataGridViewSchedule";
+            dataGridViewSchedule.RowHeadersWidth = 51;
             dataGridViewSchedule.Size = new Size(430, 243);
             dataGridViewSchedule.TabIndex = 0;
             // 
@@ -406,14 +408,14 @@
             buttonReturnCourse.Name = "buttonReturnCourse";
             buttonReturnCourse.Size = new Size(109, 39);
             buttonReturnCourse.TabIndex = 14;
-            buttonReturnCourse.Text = "Return Course";
+            buttonReturnCourse.Text = "Remove Course";
             buttonReturnCourse.UseVisualStyleBackColor = false;
             buttonReturnCourse.Visible = false;
             buttonReturnCourse.Click += buttonReturnCourse_Click;
             // 
             // Form1
             // 
-            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1230, 453);
             Controls.Add(buttonAddToCart);

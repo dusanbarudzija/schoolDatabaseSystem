@@ -8,56 +8,44 @@ namespace SchoolDatabaseSystem.Data
         // Add course to cart
         public static bool AddToCart(int studentId, int sectionId, out string message)
         {
+            /*
+            ====================================
+            SCHEDULE CONFLICT CHECK GOES HERE
+            PREREQUISITE CHECK GOES HERE
+            ====================================
+            */
             message = string.Empty;
+            bool isSuccess = false;
 
             try
             {
-                // Check if already enrolled
-                if (EnrollmentData.IsAlreadyEnrolled(studentId, sectionId))
-                {
-                    message = "Student already enrolled.";
-                    return false;
-                }
-
-                // Check if already in cart
-                string existsQuery = "SELECT COUNT(*) FROM Cart WHERE student_id=@s AND section_id=@sec";
-                SqlParameter[] existsParams = {
-                    new SqlParameter("@s", studentId),
-                    new SqlParameter("@sec", sectionId)
+                // Create parameters for stored procedure
+                SqlParameter[] parameters = {
+                    new SqlParameter("@StudentId", studentId),
+                    new SqlParameter("@SectionId", sectionId),
+                    new SqlParameter("@ResultMessage", SqlDbType.VarChar, 500)
+                    {
+                        Direction = ParameterDirection.Output
+                    },
+                    new SqlParameter("@IsSuccess", SqlDbType.Bit)
+                    {
+                        Direction = ParameterDirection.Output
+                    }
                 };
 
-                int count = (int)Database.ExecuteScalar(existsQuery, existsParams);
-                if (count > 0)
-                {
-                    message = "Course already in cart.";
-                    return false;
-                }
+                // Execute stored procedure
+                Database.ExecuteStoredProcedure("sp_AddToCart", parameters, out message, out isSuccess);
 
-                /*
-                    ====================================
-                    SCHEDULE CONFLICT CHECK GOES HERE
-                    PREREQUISITE CHECK GOES HERE
-                    ====================================
-                */
-
-                // Add to cart
-                string insertQuery = "INSERT INTO Cart(student_id, section_id) VALUES(@s,@sec)";
-                SqlParameter[] insertParams = {
-                    new SqlParameter("@s", studentId),
-                    new SqlParameter("@sec", sectionId)
-                };
-
-                Database.ExecuteNonQuery(insertQuery, insertParams);
-
-                message = "Added to cart.";
-                return true;
+                return isSuccess;
             }
             catch (Exception ex)
             {
-                message = $"Error: {ex.Message}";
+                message = $"Application error: {ex.Message}";
                 return false;
             }
         }
+
+        
 
         // Get student's cart
         public static DataTable GetStudentCart(int studentId)
