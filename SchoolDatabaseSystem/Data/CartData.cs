@@ -45,29 +45,28 @@ namespace SchoolDatabaseSystem.Data
             }
         }
 
-        
+
 
         // Get student's cart
         public static DataTable GetStudentCart(int studentId)
         {
             string query = @"
-                SELECT
-                    cs.section_id,
-                    c.course_code,
-                    c.title,
-                    cs.section_number,
-                    i.name AS instructor,
-                    cs.term,
-                    cs.year
-                FROM Cart ct
-                JOIN CourseSection cs ON ct.section_id = cs.section_id
-                JOIN Course c ON cs.course_id = c.course_id
-                JOIN Instructor i ON cs.instructor_id = i.instructor_id
-                WHERE ct.student_id = @studentId";
+        SELECT
+            v.section_id,
+            c.course_code,
+            c.title,
+            v.section_number,
+            i.name AS instructor,
+            v.term,
+            v.year
+        FROM vw_StudentCartDetails v
+        JOIN Course c ON v.course_id = c.course_id
+        JOIN Instructor i ON v.instructor_id = i.instructor_id
+        WHERE v.student_id = @studentId";
 
             SqlParameter[] parameters = {
-                new SqlParameter("@studentId", studentId)
-            };
+        new SqlParameter("@studentId", studentId)
+    };
 
             return Database.ExecuteQuery(query, parameters);
         }

@@ -51,12 +51,10 @@ namespace SchoolDatabaseSystem.Data
         public static bool IsSectionFull(int sectionId)
         {
             string query = @"
-                SELECT 
-                    cs.max_capacity - COUNT(e.enrollment_id)
-                FROM CourseSection cs
-                LEFT JOIN Enrollment e ON cs.section_id = e.section_id
-                WHERE cs.section_id = @sectionId
-                GROUP BY cs.max_capacity";
+        SELECT cs.max_capacity, ISNULL(v.enrolled_count, 0) as enrolled_count
+        FROM CourseSection cs
+        LEFT JOIN vw_SectionEnrollmentCount v ON cs.section_id = v.section_id
+        WHERE cs.section_id = @sectionId";
 
             SqlParameter[] parameters = {
                 new SqlParameter("@sectionId", sectionId)
