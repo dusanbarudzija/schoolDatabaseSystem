@@ -128,7 +128,7 @@
             // radioAvailable
             // 
             radioAvailable.AutoSize = true;
-            radioAvailable.Location = new Point(782, 22);
+            radioAvailable.Location = new Point(712, 22);
             radioAvailable.Name = "radioAvailable";
             radioAvailable.Size = new Size(147, 24);
             radioAvailable.TabIndex = 9;
@@ -140,7 +140,7 @@
             // radioCart
             // 
             radioCart.AutoSize = true;
-            radioCart.Location = new Point(906, 22);
+            radioCart.Location = new Point(865, 22);
             radioCart.Name = "radioCart";
             radioCart.Size = new Size(112, 24);
             radioCart.TabIndex = 8;
@@ -152,7 +152,7 @@
             // radioStudent
             // 
             radioStudent.AutoSize = true;
-            radioStudent.Location = new Point(1003, 22);
+            radioStudent.Location = new Point(987, 22);
             radioStudent.Name = "radioStudent";
             radioStudent.Size = new Size(136, 24);
             radioStudent.TabIndex = 7;
@@ -165,7 +165,7 @@
             // 
             comboBoxStudents.FormattingEnabled = true;
             comboBoxStudents.Items.AddRange(new object[] { "Need to use sample data to populate" });
-            comboBoxStudents.Location = new Point(79, 22);
+            comboBoxStudents.Location = new Point(81, 21);
             comboBoxStudents.Name = "comboBoxStudents";
             comboBoxStudents.Size = new Size(108, 28);
             comboBoxStudents.TabIndex = 5;
@@ -175,7 +175,7 @@
             // 
             StudentLabel.AutoSize = true;
             StudentLabel.Font = new Font("Segoe UI", 10.8F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            StudentLabel.Location = new Point(5, 25);
+            StudentLabel.Location = new Point(0, 25);
             StudentLabel.Name = "StudentLabel";
             StudentLabel.Size = new Size(84, 25);
             StudentLabel.TabIndex = 4;

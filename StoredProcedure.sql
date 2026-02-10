@@ -1,5 +1,36 @@
 USE UniRegistration;
 
+IF OBJECT_ID('sp_GetAllStudents', 'P') IS NOT NULL DROP PROCEDURE sp_GetAllStudents;
+IF OBJECT_ID('sp_GetAvailableSections', 'P') IS NOT NULL DROP PROCEDURE sp_GetAvailableSections;
+IF OBJECT_ID('sp_GetCourseSchedule', 'P') IS NOT NULL DROP PROCEDURE sp_GetCourseSchedule;
+IF OBJECT_ID('sp_GetStudentEnrollments', 'P') IS NOT NULL DROP PROCEDURE sp_GetStudentEnrollments;
+IF OBJECT_ID('sp_GetStudentCart', 'P') IS NOT NULL DROP PROCEDURE sp_GetStudentCart;
+IF OBJECT_ID('sp_IsAlreadyEnrolled', 'P') IS NOT NULL DROP PROCEDURE sp_IsAlreadyEnrolled;
+IF OBJECT_ID('sp_IsSectionFull', 'P') IS NOT NULL DROP PROCEDURE sp_IsSectionFull;
+IF OBJECT_ID('sp_RemoveFromCart', 'P') IS NOT NULL DROP PROCEDURE sp_RemoveFromCart;
+IF OBJECT_ID('sp_AddToCart', 'P') IS NOT NULL DROP PROCEDURE sp_AddToCart;
+IF OBJECT_ID('sp_RegisterStudent', 'P') IS NOT NULL DROP PROCEDURE sp_RegisterStudent;
+
+-- Get all students
+CREATE PROCEDURE sp_GetAllStudents
+AS
+BEGIN
+	SET NOCOUNT ON;
+
+	SELECT student_id, name
+	FROM Student 
+	ORDER BY name;
+END;
+
+-- Get available sections
+CREATE PROCEDURE sp_GetAvailableSections
+	@Term VARCHAR(20),
+	@Year INT
+AS 
+BEGIN
+	SET NOCOUNT ON;
+
+	SELECT cs.section_id,
 
 -- Add course to cart
 CREATE PROCEDURE sp_AddToCart
