@@ -112,24 +112,30 @@ namespace SchoolDatabaseSystem.Data
                 return false; 
             }
         }
-		public static DataTable ExecuteSelectProcedure(string procedureName, SqlParameter[] parameters)
-{
-    using SqlConnection conn = new SqlConnection(connectionString);
-    using SqlCommand cmd = new SqlCommand(procedureName, conn);
-
-    cmd.CommandType = CommandType.StoredProcedure;
-
-    if (parameters != null)
-        cmd.Parameters.AddRange(parameters);
-
-    SqlDataAdapter adapter = new SqlDataAdapter(cmd);
-    DataTable table = new DataTable();
-    adapter.Fill(table);
-
-    return table;
-}
-
-
+		
+		// Execute SELECT stored procedures (returns DataTable)
+		public static DataTable ExecuteSelectProcedure(string procedureName, SqlParameter[] parameters = null)
+		{
+		    DataTable table = new DataTable();
+		
+		    using (SqlConnection conn = new SqlConnection(connectionString))
+		    {
+		        using (SqlCommand cmd = new SqlCommand(procedureName, conn))
+		        {
+		            cmd.CommandType = CommandType.StoredProcedure;
+		
+		            if (parameters != null)
+		                cmd.Parameters.AddRange(parameters);
+		
+		            using (SqlDataAdapter adapter = new SqlDataAdapter(cmd))
+		            {
+		                adapter.Fill(table);
+		            }
+		        }
+		    }
+		
+		    return table;
+		}
     }
 
 }
