@@ -15,6 +15,7 @@ IF OBJECT_ID('sp_RegisterStudent', 'P') IS NOT NULL DROP PROCEDURE sp_RegisterSt
 CREATE PROCEDURE sp_GetAllStudents
 AS
 BEGIN
+	
 	SET NOCOUNT ON;
 
 	SELECT student_id, name
@@ -31,6 +32,7 @@ BEGIN
 	SET NOCOUNT ON;
 
 	SELECT cs.section_id,
+END
 
 -- Add course to cart
 CREATE PROCEDURE sp_AddToCart

@@ -159,24 +159,6 @@ namespace SchoolDatabaseSystem
         }
 
 
-        private void textBoxCourses_Enter(object sender, EventArgs e)
-        {
-            if (textBoxCourses.Text == "Select courses...")
-            {
-                textBoxCourses.Text = "";
-                textBoxCourses.ForeColor = Color.Black;
-            }
-        }
-
-        private void textBoxCourses_Leave(object sender, EventArgs e)
-        {
-            if (textBoxCourses.Text == "")
-            {
-                textBoxCourses.Text = "Select courses...";
-                textBoxCourses.ForeColor = Color.Gray;
-            }
-        }
-
         private void comboBox3_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (comboBoxStudents.SelectedValue == null)
@@ -186,7 +168,7 @@ namespace SchoolDatabaseSystem
         }
 
 
-        
+
 
         private void comboBoxTerm_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -361,6 +343,11 @@ namespace SchoolDatabaseSystem
         private void buttonReturnCourse_Click(object sender, EventArgs e)
         {
             RemoveCartItem();
+        }
+
+        private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
         }
     }
 }

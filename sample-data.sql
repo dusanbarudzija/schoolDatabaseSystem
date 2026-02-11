@@ -374,19 +374,19 @@ INSERT INTO CourseSchedule (section_id, day_of_week, start_time, end_time, class
 
 
 
-INSERT INTO Enrollment (student_id, section_id, status, grade) VALUES
+INSERT INTO Enrollment (student_id, course_id, section_id, status, grade) VALUES
 -- Student 1000 (Alice Chen) - Completed courses
-(1000, 8, 'Completed', 'A'),   -- CMPT101 W01 Winter 2025
-(1000, 10, 'Completed', 'B+'), -- CMPT103 W01 Winter 2025
-(1000, 15, 'Completed', 'A-'), -- MATH114 W01 Winter 2025
+(1000, 1, 8, 'Completed', 'A'),   -- CMPT101 W01 Winter 2024
+(1000, 2, 10, 'Completed', 'B+'), -- CMPT103 W01 Winter 2024
+(1000, 9, 15, 'Completed', 'A-'), -- MATH114 W01 Winter 2024
 
 -- Student 1001 (Bob Martin) - Enrolled in Fall 2025
-(1001, 27, 'Enrolled', 'I'),  -- CMPT101 F01 Fall 2025
-(1001, 32, 'Enrolled', 'I'),  -- MATH114 F01 Fall 2025
+(1001, 1, 27, 'Enrolled', 'I'),  -- CMPT101 F01 Fall 2025
+(1001, 9, 32, 'Enrolled', 'I'),  -- MATH114 F01 Fall 2025
 
 -- Student 1002 (Sarah Khan) - Enrolled in Winter 2026
-(1002, 38, 'Enrolled', 'I'),  -- CMPT101 W01 Winter 2026
-(1002, 47, 'Enrolled', 'I');  -- MATH114 W01 Winter 2026
+(1002, 1, 38, 'Enrolled', 'I'),  -- CMPT101 W01 Winter 2026
+(1002, 9, 47, 'Enrolled', 'I');  -- MATH114 W01 Winter 2026
 
 INSERT INTO Cart (student_id, course_id, section_id) VALUES
 -- Student 1000 (Alice Chen) - Considering Winter 2026 courses (already completed prerequisites)

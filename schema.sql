@@ -10,8 +10,8 @@ IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.VIEWS WHERE TABLE_NAME = 'mv_Student
     DROP VIEW mv_StudentEnrollmentSchedule;
 IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.VIEWS WHERE TABLE_NAME = 'mv_StudentCompletedCourses')
     DROP VIEW mv_StudentCompletedCourses;
-IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.VIEWS WHERE TABLE_NAME = 'mv_CoursePrerequisites')
-    DROP VIEW mv_CoursePrerequisites;
+IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.VIEWS WHERE TABLE_NAME = 'mv_CoursePrerequisiteMap')
+    DROP VIEW mv_CoursePrerequisiteMap;
 
 
 
@@ -140,3 +140,41 @@ CREATE TABLE Cart (
 
 
 /******** MATERIALIZED VIEWS ***********/
+/* 
+MV 3: Completed courses with grades (for prerequisites)
+*/
+CREATE VIEW mv_StudentCompletedCourses
+WITH SCHEMABINDING
+AS
+SELECT 
+    e.enrollment_id, -- Include primary key for uniqueness
+    e.student_id,
+    e.course_id,
+    c.course_code,
+    c.title,
+    e.grade,
+    e.section_id,
+    -- Must include all GROUP BY columns in SELECT
+    cs.term,
+    cs.year
+FROM dbo.Enrollment e
+INNER JOIN dbo.Course c ON e.course_id = c.course_id
+INNER JOIN dbo.CourseSection cs ON e.section_id = cs.section_id
+WHERE e.status = 'Completed'
+    AND e.grade IS NOT NULL
+    AND e.grade NOT IN ('I', 'W');
+GO
+
+-- Create unique clustered index to materialize it
+CREATE UNIQUE CLUSTERED INDEX IX_mv_StudentCompletedCourses 
+ON mv_StudentCompletedCourses (enrollment_id);
+GO
+
+-- Add non-clustered indexes for common queries
+CREATE NONCLUSTERED INDEX IX_mv_StudentCompletedCourses_Student 
+ON mv_StudentCompletedCourses (student_id, course_id);
+GO
+
+CREATE NONCLUSTERED INDEX IX_mv_StudentCompletedCourses_Grade 
+ON mv_StudentCompletedCourses (grade, student_id);
+GO
