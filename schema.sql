@@ -6,7 +6,6 @@ EXEC sp_MSforeachtable "ALTER TABLE ? NOCHECK CONSTRAINT all";
 -- Drop views
 DROP VIEW IF EXISTS mv_StudentCompletedCourses;
 
-
 -- Drop tables
 DROP TABLE IF EXISTS Cart
 DROP TABLE IF EXISTS Enrollment;
@@ -111,7 +110,7 @@ CREATE TABLE Enrollment (
     student_id INT NOT NULL,
 	course_id INT NOT NULL,
     section_id INT NOT NULL,
-	status VARCHAR(20) DEFAULT 'Enrolled' CHECK (status IN ('Enrolled', 'Completed', 'Dropped', 'Withdrawn')),
+	status VARCHAR(20) DEFAULT 'Enrolled' CHECK (status IN ('Enrolled', 'Completed', 'Withdrawn')),
     grade VARCHAR(2) NULL CHECK (grade IN ('A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C+', 'D', 'F', 'I', 'W')), -- I=Incomplete, W=Withdrawn
     FOREIGN KEY (student_id) REFERENCES Student(student_id),
     FOREIGN KEY (course_id) REFERENCES Course(course_id),

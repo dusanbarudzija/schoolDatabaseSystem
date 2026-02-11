@@ -221,7 +221,7 @@ namespace SchoolDatabaseSystem
 
                 buttonAddToCart.Visible = false;
                 buttonRegisterCart.Visible = false;
-                buttonReturnCourse.Visible = false;
+                buttonReturnCourse.Visible = true;
                 ShowStudentCourses();
             }
             else
@@ -326,6 +326,26 @@ namespace SchoolDatabaseSystem
             }
         }
 
+        private void RemoveEnrolledCourse()
+        {
+            if (comboBoxStudents.SelectedValue == null || dataGridViewCourses.SelectedRows.Count == 0)
+                return;
+
+            int studentId = (int)comboBoxStudents.SelectedValue;
+            int sectionId = Convert.ToInt32(dataGridViewCourses.SelectedRows[0].Cells["section_id"].Value);
+
+            string message;
+            if (EnrollmentData.RemoveEnrolledCourse(studentId, sectionId, out message))
+            {
+                MessageBox.Show(message, "Success");
+                ShowStudentCourses(); // Refresh student's courses
+            }
+            else
+            {
+                MessageBox.Show(message, "Error");
+            }
+        }
+
 
         // ============================================
         // BUTTON CLICK EVENT HANDLERS
@@ -358,7 +378,7 @@ namespace SchoolDatabaseSystem
             }
             else if (radioStudent.Checked)
             {
-                //RemoveEnrolledCourse();
+                RemoveEnrolledCourse();
             }
 
         }

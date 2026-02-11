@@ -5,11 +5,10 @@ IF OBJECT_ID('sp_GetAvailableSections', 'P') IS NOT NULL DROP PROCEDURE sp_GetAv
 IF OBJECT_ID('sp_GetCourseSchedule', 'P') IS NOT NULL DROP PROCEDURE sp_GetCourseSchedule;
 IF OBJECT_ID('sp_GetStudentEnrollments', 'P') IS NOT NULL DROP PROCEDURE sp_GetStudentEnrollments;
 IF OBJECT_ID('sp_GetStudentCart', 'P') IS NOT NULL DROP PROCEDURE sp_GetStudentCart;
-IF OBJECT_ID('sp_IsAlreadyEnrolled', 'P') IS NOT NULL DROP PROCEDURE sp_IsAlreadyEnrolled;
-IF OBJECT_ID('sp_IsSectionFull', 'P') IS NOT NULL DROP PROCEDURE sp_IsSectionFull;
 IF OBJECT_ID('sp_RemoveFromCart', 'P') IS NOT NULL DROP PROCEDURE sp_RemoveFromCart;
 IF OBJECT_ID('sp_AddToCart', 'P') IS NOT NULL DROP PROCEDURE sp_AddToCart;
 IF OBJECT_ID('sp_RegisterStudent', 'P') IS NOT NULL DROP PROCEDURE sp_RegisterStudent;
+IF OBJECT_ID('sp_RemoveEnrolledCourse', 'P') IS NOT NULL DROP PROCEDURE sp_RemoveEnrolledCourse;
 
 -- Get all students
 GO
@@ -21,134 +20,6 @@ BEGIN
     SELECT student_id, name
     FROM Student 
     ORDER BY name;
-END;
-GO
-
-
-
-
-CREATE PROCEDURE sp_AddToCart
-    @StudentId INT,
-    @SectionId INT,
-    @ResultMessage VARCHAR(500) OUTPUT,
-    @IsSuccess BIT OUTPUT
-AS
-BEGIN
-    SET NOCOUNT ON;
-    SET @IsSuccess = 0;
-
-    BEGIN TRY
-		BEGIN TRAN
-
-        DECLARE @CourseId INT;
-
-        SELECT @CourseId = course_id 
-        FROM CourseSection 
-        WHERE section_id = @SectionId;
-
-		IF @CourseId IS NULL
-        BEGIN
-            SET @ResultMessage = 'Invalid section.';
-            ROLLBACK;
-            RETURN;
-        END
-
-		-- Check if already in cart (for THIS course, any section)
-        IF EXISTS (
-            SELECT 1
-            FROM Cart 
-            WHERE student_id=@StudentId 
-				AND course_id=@CourseId	
-        )
-        BEGIN 
-            SET @ResultMessage = 'Course already in cart';
-			ROLLBACK;
-            RETURN;
-        END
-
-		-- Check if already enrolled or completed (THIS course, any section)
-        IF EXISTS (
-            SELECT 1
-            FROM Enrollment 
-            WHERE student_id = @StudentId 
-				AND course_id = @CourseId
-				AND status IN ('Enrolled', 'Completed')
-        )
-        BEGIN
-            SET @ResultMessage = 'Already enrolled in or completed this course';
-            ROLLBACK;
-			RETURN;
-        END
-
-		-- Check if prereqs met (using materialized  view)
-		IF EXISTS (
-            SELECT 1
-            FROM Prerequisite p
-            WHERE p.course_id = @CourseId
-              AND p.prerequisite_course_id NOT IN (
-                  SELECT mv.course_id
-                  FROM mv_StudentCompletedCourses mv
-                  WHERE mv.student_id = @StudentId
-                    AND mv.grade >= p.minimum_grade
-              )
-        )
-
-		-- Get list of missing prerequisites
-		BEGIN
-			DECLARE @MissingCourses VARCHAR(1000);
-            
-			SELECT @MissingCourses = STRING_AGG(c.course_code + ' (' + c.title + ')', ', ')
-			FROM Prerequisite p
-			JOIN Course c ON p.prerequisite_course_id = c.course_id
-			WHERE p.course_id = @CourseId
-			AND p.prerequisite_course_id NOT IN (
-				SELECT mv.course_id
-				FROM mv_StudentCompletedCourses mv
-				WHERE mv.student_id = @StudentId
-				AND mv.grade >= p.minimum_grade
-			);
-			SET @ResultMessage = 'Prerequisites not met: ' + ISNULL(@MissingCourses, 'Unknown prerequisites');
-			ROLLBACK;
-            RETURN;
-        END
-
-		-- Check for schedule conflict
-		IF EXISTS (
-            SELECT 1
-            FROM CourseSchedule n
-            JOIN CourseSchedule e
-                ON n.day_of_week=e.day_of_week
-               AND n.start_time < e.end_time
-               AND n.end_time > e.start_time
-            WHERE n.section_id=@SectionId
-              AND e.section_id IN (
-                    SELECT section_id FROM Enrollment WHERE student_id=@StudentId
-                    UNION
-                    SELECT section_id FROM Cart WHERE student_id=@StudentId
-              )
-        )
-        BEGIN
-            SET @ResultMessage='Schedule conflict with existing course.';
-            ROLLBACK;
-            RETURN;
-        END
-
-		-- Add to cart
-		INSERT INTO Cart(student_id, course_id, section_id)
-		VALUES(@StudentId, @CourseId, @SectionId);
-
-		COMMIT TRANSACTION;
-
-        SET @IsSuccess = 1;
-        SET @ResultMessage = 'Added to cart successfully';
-
-	END TRY
-
-	BEGIN CATCH
-		IF @@TRANCOUNT>0 ROLLBACK;
-		SET @IsSuccess = 0;
-        SET @ResultMessage = 'Error: ' + ERROR_MESSAGE();
-    END CATCH
 END;
 GO
 
@@ -283,6 +154,133 @@ BEGIN
 END;
 GO
 
+
+CREATE PROCEDURE sp_AddToCart
+    @StudentId INT,
+    @SectionId INT,
+    @ResultMessage VARCHAR(500) OUTPUT,
+    @IsSuccess BIT OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SET @IsSuccess = 0;
+
+    BEGIN TRY
+		BEGIN TRAN
+
+        DECLARE @CourseId INT;
+
+        SELECT @CourseId = course_id 
+        FROM CourseSection 
+        WHERE section_id = @SectionId;
+
+		IF @CourseId IS NULL
+        BEGIN
+            SET @ResultMessage = 'Invalid section.';
+            ROLLBACK;
+            RETURN;
+        END
+
+		-- Check if already in cart (for THIS course, any section)
+        IF EXISTS (
+            SELECT 1
+            FROM Cart 
+            WHERE student_id=@StudentId 
+				AND course_id=@CourseId	
+        )
+        BEGIN 
+            SET @ResultMessage = 'Course already in cart';
+			ROLLBACK;
+            RETURN;
+        END
+
+		-- Check if already enrolled or completed (THIS course, any section)
+        IF EXISTS (
+            SELECT 1
+            FROM Enrollment 
+            WHERE student_id = @StudentId 
+				AND course_id = @CourseId
+				AND status IN ('Enrolled', 'Completed')
+        )
+        BEGIN
+            SET @ResultMessage = 'Already enrolled in or completed this course';
+            ROLLBACK;
+			RETURN;
+        END
+
+		-- Check if prereqs met (using materialized  view)
+		IF EXISTS (
+            SELECT 1
+            FROM Prerequisite p
+            WHERE p.course_id = @CourseId
+              AND p.prerequisite_course_id NOT IN (
+                  SELECT mv.course_id
+                  FROM mv_StudentCompletedCourses mv
+                  WHERE mv.student_id = @StudentId
+                    AND mv.grade >= p.minimum_grade
+              )
+        )
+
+		-- Get list of missing prerequisites
+		BEGIN
+			DECLARE @MissingCourses VARCHAR(1000);
+            
+			SELECT @MissingCourses = STRING_AGG(c.course_code + ' (' + c.title + ')', ', ')
+			FROM Prerequisite p
+			JOIN Course c ON p.prerequisite_course_id = c.course_id
+			WHERE p.course_id = @CourseId
+			AND p.prerequisite_course_id NOT IN (
+				SELECT mv.course_id
+				FROM mv_StudentCompletedCourses mv
+				WHERE mv.student_id = @StudentId
+				AND mv.grade >= p.minimum_grade
+			);
+			SET @ResultMessage = 'Prerequisites not met: ' + ISNULL(@MissingCourses, 'Unknown prerequisites');
+			ROLLBACK;
+            RETURN;
+        END
+
+		-- Check for schedule conflict
+		IF EXISTS (
+            SELECT 1
+            FROM CourseSchedule n
+            JOIN CourseSchedule e
+                ON n.day_of_week=e.day_of_week
+               AND n.start_time < e.end_time
+               AND n.end_time > e.start_time
+            WHERE n.section_id=@SectionId
+              AND e.section_id IN (
+                    SELECT section_id FROM Enrollment WHERE student_id=@StudentId
+                    UNION
+                    SELECT section_id FROM Cart WHERE student_id=@StudentId
+              )
+        )
+        BEGIN
+            SET @ResultMessage='Schedule conflict with existing course.';
+            ROLLBACK;
+            RETURN;
+        END
+
+		-- Add to cart
+		INSERT INTO Cart(student_id, course_id, section_id)
+		VALUES(@StudentId, @CourseId, @SectionId);
+
+		COMMIT TRANSACTION;
+
+        SET @IsSuccess = 1;
+        SET @ResultMessage = 'Added to cart successfully';
+
+	END TRY
+
+	BEGIN CATCH
+		IF @@TRANCOUNT>0 ROLLBACK;
+		SET @IsSuccess = 0;
+        SET @ResultMessage = 'Error: ' + ERROR_MESSAGE();
+    END CATCH
+END;
+GO
+
+
 GO
 CREATE PROCEDURE sp_RemoveFromCart
     @StudentId INT,
@@ -392,6 +390,93 @@ BEGIN
         IF @@TRANCOUNT > 0
             ROLLBACK TRANSACTION;
         
+        SET @IsSuccess = 0;
+        SET @ResultMessage = 'Error: ' + ERROR_MESSAGE();
+    END CATCH
+END;
+GO
+
+
+CREATE PROCEDURE sp_RemoveEnrolledCourse
+	@StudentId INT,
+    @SectionId INT,
+    @CurrentDate DATE = NULL,
+    @ResultMessage VARCHAR(500) OUTPUT,
+    @IsSuccess BIT OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+	SET @IsSuccess = 0;
+    
+	IF @CurrentDate IS NULL
+        SET @CurrentDate = GETDATE();
+    
+    BEGIN TRY
+        BEGIN TRANSACTION;
+        
+			DECLARE @StartDate DATE,
+                @CurrentStatus VARCHAR(20),
+                @DaysDiff INT,
+                @CourseId INT;
+
+			-- Get current enrollment status and course ID
+			SELECT @CurrentStatus = e.status,
+				   @CourseId = e.course_id
+			FROM Enrollment e
+			WHERE e.student_id = @StudentId AND e.section_id = @SectionId;
+
+			-- Check if status is 'Enrolled'
+			IF @CurrentStatus != 'Enrolled'
+			BEGIN
+				SET @ResultMessage = 'Cannot remove. Current status is ' + @CurrentStatus + ', not Enrolled.';
+				ROLLBACK TRANSACTION;
+				RETURN;
+			END
+            
+			-- Derive semester start date from term/year
+            SELECT @StartDate = 
+                CASE cs.term
+                    WHEN 'Fall' THEN DATEFROMPARTS(cs.year, 9, 1)  -- Sept 1
+                    WHEN 'Winter' THEN DATEFROMPARTS(cs.year, 1, 5)  -- Jan 5
+                    WHEN 'Spring' THEN DATEFROMPARTS(cs.year, 5, 1)  -- May 1
+                    WHEN 'Summer' THEN DATEFROMPARTS(cs.year, 7, 1)  -- July 1
+                END
+            FROM CourseSection cs
+            WHERE cs.section_id = @SectionId;
+
+		-- Calculate days between start date and current date
+        SET @DaysDiff = DATEDIFF(DAY, @StartDate, @CurrentDate);
+      
+
+		IF @DaysDiff <= 14
+        BEGIN
+            -- Within 2 weeks: Complete removal
+            DELETE FROM Enrollment
+            WHERE student_id = @StudentId AND section_id = @SectionId;
+
+			SELECT 'Enrollment deleted successfully.' AS Message;
+
+		END
+		ELSE
+		BEGIN
+			
+			-- After 2 weeks: Change status to 'Withdrawn' AND grade = 'W'
+			UPDATE Enrollment
+            SET status = 'Withdrawn',
+                grade = 'W'
+            WHERE student_id = @StudentId AND section_id = @SectionId;
+
+			SET @ResultMessage = 'Past 2-week deadline. Status changed to Withdrawn with grade W.';
+            SET @IsSuccess = 1;
+        END
+
+		COMMIT TRANSACTION;
+        
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+            
         SET @IsSuccess = 0;
         SET @ResultMessage = 'Error: ' + ERROR_MESSAGE();
     END CATCH
