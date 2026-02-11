@@ -21,7 +21,7 @@ DBCC CHECKIDENT ('CourseSection', RESEED, 0);
 DBCC CHECKIDENT ('Prerequisite', RESEED, 0);
 DBCC CHECKIDENT ('Course', RESEED, 0);
 DBCC CHECKIDENT ('Classroom', RESEED, 0);
-DBCC CHECKIDENT ('Student', RESEED, 0);
+DBCC CHECKIDENT ('Student', RESEED, 1000);
 
 
 -- College
@@ -53,11 +53,7 @@ INSERT INTO Student (name, year, major_department_id) VALUES
 ('Bob Martin', 3, 2),
 ('Sarah Khan', 1, 3),
 ('John Doe', 3, 1),
-('Jane Smith', 2, 1),
-('Mike Johnson', 4, 2),
-('Sarah Williams', 1, 3),
-('Alex Chen', 3, 6),
-('Emily Davis', 2, 4);
+('Jane Smith', 2, 1);
 
 INSERT INTO Classroom (building, room_number, capacity, room_type) VALUES
 -- Building 5 (Computer Science) - rooms 110-240

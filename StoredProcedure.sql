@@ -72,15 +72,82 @@ BEGIN
         INSERT INTO Cart(student_id, course_id, section_id)
         VALUES (@StudentId, @CourseId, @SectionId);
 
+		-- 3. Check if prereqs met
+		IF EXISTS (
+            SELECT 1
+            FROM Prerequisite p
+            WHERE p.course_id = @CourseId
+              AND p.prerequisite_course_id NOT IN (
+                  SELECT e.course_id
+                  FROM Enrollment e
+                  WHERE e.student_id = @StudentId
+                    AND e.status = 'Completed'
+                    AND e.grade >= p.minimum_grade
+              )
+        )
 
+		-- Get list of missing prerequisites
+		BEGIN
+			DECLARE @MissingCourses VARCHAR(1000);
+            
+			SELECT @MissingCourses = STRING_AGG(c.course_code + ' (' + c.title + ')', ', ')
+			FROM Prerequisite p
+			JOIN Course c ON p.prerequisite_course_id = c.course_id
+			WHERE p.course_id = @CourseId
+			AND p.prerequisite_course_id NOT IN (
+				SELECT e.course_id
+				FROM Enrollment e
+				WHERE e.student_id = @StudentId
+				AND e.status = 'Completed'
+				AND e.grade >= p.minimum_grade
+			);
+			SET @ResultMessage = 'Prerequisites not met: ' + ISNULL(@MissingCourses, 'Unknown prerequisites');
+            RETURN;
+        END
+
+		-- Add to cart
+		BEGIN TRANSACTION;
+
+			INSERT INTO Cart(student_id, course_id, section_id)
+			VALUES(@StudentId, @CourseId, @SectionId);
+
+		COMMIT TRANSACTION;
+
+		SET @IsSuccess = 1;
         SET @IsSuccess = 1;
         SET @ResultMessage = 'Added to cart successfully';
 
+	END TRY
+	BEGIN CATCH
+		ROLLBACK TRANSACTION;
+		SET @IsSuccess = 0;
     END TRY
     BEGIN CATCH
         SET @IsSuccess = 0;
         SET @ResultMessage = 'Error: ' + ERROR_MESSAGE();
     END CATCH
+END;
+GO
+
+/*
+EXEC sp_helptext 'sp_AddToCart';
+
+DELETE FROM Cart WHERE student_id = 1000 AND section_id = 40;
+DECLARE @Message VARCHAR(500);
+DECLARE @Success BIT;
+
+EXEC sp_AddToCart 
+    @StudentId = 1000, 
+    @SectionId = 40, 
+    @ResultMessage = @Message OUTPUT, 
+    @IsSuccess = @Success OUTPUT;
+
+PRINT 'Success: ' + CAST(@Success AS VARCHAR);
+PRINT 'Message: ' + @Message;
+
+-- Check result
+SELECT * FROM Cart WHERE student_id = 1000;
+*/
 END;
 GO
 

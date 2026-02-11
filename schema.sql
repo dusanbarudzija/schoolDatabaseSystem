@@ -4,15 +4,7 @@ USE UniRegistration;
 EXEC sp_MSforeachtable "ALTER TABLE ? NOCHECK CONSTRAINT all";
 
 -- Drop views
-IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.VIEWS WHERE TABLE_NAME = 'vw_CourseSectionAvailability')
-    DROP VIEW vw_CourseSectionAvailability;
-IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.VIEWS WHERE TABLE_NAME = 'mv_StudentEnrollmentSchedule')
-    DROP VIEW mv_StudentEnrollmentSchedule;
-IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.VIEWS WHERE TABLE_NAME = 'mv_StudentCompletedCourses')
-    DROP VIEW mv_StudentCompletedCourses;
-IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.VIEWS WHERE TABLE_NAME = 'mv_CoursePrerequisiteMap')
-    DROP VIEW mv_CoursePrerequisiteMap;
-
+DROP VIEW IF EXISTS mv_StudentCompletedCourses;
 
 
 -- Drop tables
@@ -178,3 +170,4 @@ GO
 CREATE NONCLUSTERED INDEX IX_mv_StudentCompletedCourses_Grade 
 ON mv_StudentCompletedCourses (grade, student_id);
 GO
+
