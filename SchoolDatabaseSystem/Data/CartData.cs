@@ -8,12 +8,6 @@ namespace SchoolDatabaseSystem.Data
         // Add course to cart
         public static bool AddToCart(int studentId, int sectionId, out string message)
         {
-            /*
-            ====================================
-            SCHEDULE CONFLICT CHECK GOES HERE
-            PREREQUISITE CHECK GOES HERE
-            ====================================
-            */
             message = string.Empty;
             bool isSuccess = false;
 
@@ -45,49 +39,47 @@ namespace SchoolDatabaseSystem.Data
             }
         }
 
-        
+
 
         // Get student's cart
         public static DataTable GetStudentCart(int studentId)
         {
-            string query = @"
-                SELECT
-                    cs.section_id,
-                    c.course_code,
-                    c.title,
-                    cs.section_number,
-                    i.name AS instructor,
-                    cs.term,
-                    cs.year
-                FROM Cart ct
-                JOIN CourseSection cs ON ct.section_id = cs.section_id
-                JOIN Course c ON cs.course_id = c.course_id
-                JOIN Instructor i ON cs.instructor_id = i.instructor_id
-                WHERE ct.student_id = @studentId";
-
             SqlParameter[] parameters = {
-                new SqlParameter("@studentId", studentId)
+                new SqlParameter("@StudentId", studentId)
             };
 
-            return Database.ExecuteQuery(query, parameters);
+            return Database.ExecuteSelectProcedure("sp_GetStudentCart", parameters);
         }
 
+
         // Remove from cart
-        public static bool RemoveFromCart(int studentId, int sectionId)
+        public static bool RemoveFromCart(int studentId, int sectionId, out string message)
         {
-            string query = "DELETE FROM Cart WHERE student_id=@s AND section_id=@sec";
-            SqlParameter[] parameters = {
-                new SqlParameter("@s", studentId),
-                new SqlParameter("@sec", sectionId)
-            };
+            message = string.Empty;
+            bool isSuccess = false;
 
             try
             {
-                Database.ExecuteNonQuery(query, parameters);
-                return true;
+                SqlParameter[] parameters = {
+                    new SqlParameter("@StudentId", studentId),
+                    new SqlParameter("@SectionId", sectionId),
+                    new SqlParameter("@ResultMessage", SqlDbType.VarChar, 500)
+                    {
+                        Direction = ParameterDirection.Output
+                    },
+                    new SqlParameter("@IsSuccess", SqlDbType.Bit)
+                    {
+                        Direction = ParameterDirection.Output
+                    }
+                };
+
+                Database.ExecuteStoredProcedure("sp_RemoveFromCart", parameters, out message, out isSuccess);
+
+                return isSuccess;
             }
-            catch
+            catch (Exception ex)
             {
+                message = $"Application error: {ex.Message}";
                 return false;
             }
         }
@@ -96,43 +88,30 @@ namespace SchoolDatabaseSystem.Data
         public static bool RegisterCartItem(int studentId, int sectionId, out string message)
         {
             message = string.Empty;
+            bool isSuccess = false;
 
             try
             {
-                // Check if section is full
-                if (EnrollmentData.IsSectionFull(sectionId))
-                {
-                    message = "No space available.";
-                    return false;
-                }
-
-                // Insert into enrollment
-                string insertEnroll = @"
-                    INSERT INTO Enrollment(enrollment_id, student_id, section_id)
-                    VALUES((SELECT ISNULL(MAX(enrollment_id),0)+1 FROM Enrollment),@s,@sec)";
-
-                SqlParameter[] enrollParams = {
-                    new SqlParameter("@s", studentId),
-                    new SqlParameter("@sec", sectionId)
+                SqlParameter[] parameters = {
+                    new SqlParameter("@StudentId", studentId),
+                    new SqlParameter("@SectionId", sectionId),
+                    new SqlParameter("@ResultMessage", SqlDbType.VarChar, 500)
+                    {
+                        Direction = ParameterDirection.Output
+                    },
+                    new SqlParameter("@IsSuccess", SqlDbType.Bit)
+                    {
+                        Direction = ParameterDirection.Output
+                    }
                 };
 
-                Database.ExecuteNonQuery(insertEnroll, enrollParams);
+                Database.ExecuteStoredProcedure("sp_RegisterStudent", parameters, out message, out isSuccess);
 
-                // Delete from cart
-                string deleteCart = "DELETE FROM Cart WHERE student_id=@s AND section_id=@sec";
-                SqlParameter[] deleteParams = {
-                    new SqlParameter("@s", studentId),
-                    new SqlParameter("@sec", sectionId)
-                };
-
-                Database.ExecuteNonQuery(deleteCart, deleteParams);
-
-                message = "Registered.";
-                return true;
+                return isSuccess;
             }
             catch (Exception ex)
             {
-                message = $"Error: {ex.Message}";
+                message = $"Application error: {ex.Message}";
                 return false;
             }
         }

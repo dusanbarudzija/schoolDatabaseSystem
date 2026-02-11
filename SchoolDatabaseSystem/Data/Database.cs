@@ -25,70 +25,9 @@ namespace SchoolDatabaseSystem.Data
             }
         }
 
-        public static DataTable ExecuteQuery(string query, SqlParameter[] parameters = null)
-        {
-            DataTable dataTable = new DataTable();
 
-            try
-            {
-                using (SqlConnection conn = new SqlConnection(connectionString))
-                {
-                    using (SqlCommand cmd = new SqlCommand(query, conn))
-                    {
-                        if (parameters != null)
-                        {
-                            cmd.Parameters.AddRange(parameters);
-                        }
-
-                        conn.Open();
-                        using (SqlDataAdapter adapter = new SqlDataAdapter(cmd))
-                        {
-                            adapter.Fill(dataTable);
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Database query error: {ex.Message}");
-            }
-
-            return dataTable;
-        }
-
-        // Generic method to execute INSERT, UPDATE, DELETE
-        public static int ExecuteNonQuery(string query, SqlParameter[] parameters = null)
-        {
-            int rowsAffected = 0;
-
-            try
-            {
-                using (SqlConnection conn = new SqlConnection(connectionString))
-                {
-                    using (SqlCommand cmd = new SqlCommand(query, conn))
-                    {
-                        if (parameters != null)
-                        {
-                            cmd.Parameters.AddRange(parameters);
-                        }
-
-                        conn.Open();
-                        rowsAffected = cmd.ExecuteNonQuery();
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Database operation error: {ex.Message}");
-            }
-
-            return rowsAffected;
-        }
-
-        // ========================================
         // STORED PROCEDURE METHOD 1: Returns success/message
-        // For: INSERT/UPDATE/DELETE (sp_AddToCart, sp_RegisterStudent, etc.)
-        // =======================================
+        // For: INSERT/UPDATE/DELETE 
         public static bool ExecuteStoredProcedure(
             string procedureName,
             SqlParameter[] parameters,
@@ -145,69 +84,7 @@ namespace SchoolDatabaseSystem.Data
             }
         }
 
-        // ========================================
-        // STORED PROCEDURE METHOD 2: Returns DataTable
-        // For: SELECT queries (sp_GetAllStudents, sp_GetAvailableSections, etc.)
-        // ========================================
-        public static DataTable ExecuteStoredProcedureQuery(
-            string procedureName,
-            SqlParameter[] parameters = null)
-        {
-            DataTable dt = new DataTable();
 
-            using (SqlConnection conn = new SqlConnection(connectionString))
-            {
-                using (SqlCommand cmd = new SqlCommand(procedureName, conn))
-                {
-                    cmd.CommandType = CommandType.StoredProcedure;
-
-                    if (parameters != null)
-                        cmd.Parameters.AddRange(parameters);
-
-                    using (SqlDataAdapter adapter = new SqlDataAdapter(cmd))
-                    {
-                        adapter.Fill(dt);
-                    }
-                }
-            }
-
-            return dt;
-        }
-
-
-        // Execute scalar query (return single value)
-        public static object ExecuteScalar(string query, SqlParameter[] parameters = null)
-        {
-            object result = null;
-
-            try
-            {
-                using (SqlConnection conn = new SqlConnection(connectionString))
-                {
-                    using (SqlCommand cmd = new SqlCommand(query, conn))
-                    {
-                        if (parameters != null)
-                        {
-                            cmd.Parameters.AddRange(parameters);
-                        }
-
-                        conn.Open();
-                        result = cmd.ExecuteScalar();
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Database scalar query error: {ex.Message}");
-            }
-
-            return result;
-        }
-
-        
-        
-
-		
 		// Execute SELECT stored procedures (returns DataTable)
 		public static DataTable ExecuteSelectProcedure(string procedureName, SqlParameter[] parameters = null)
 		{

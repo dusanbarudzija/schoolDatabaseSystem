@@ -8,8 +8,7 @@ namespace SchoolDatabaseSystem.Data
         // Get all students for dropdown
         public static DataTable GetAllStudents()
         {
-            string query = "SELECT student_id, name FROM Student";
-            return Database.ExecuteQuery(query);
+            return Database.ExecuteSelectProcedure("sp_GetAllStudents");
         }
     }
 }

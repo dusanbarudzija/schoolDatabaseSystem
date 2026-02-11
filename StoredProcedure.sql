@@ -11,11 +11,8 @@ IF OBJECT_ID('sp_RemoveFromCart', 'P') IS NOT NULL DROP PROCEDURE sp_RemoveFromC
 IF OBJECT_ID('sp_AddToCart', 'P') IS NOT NULL DROP PROCEDURE sp_AddToCart;
 IF OBJECT_ID('sp_RegisterStudent', 'P') IS NOT NULL DROP PROCEDURE sp_RegisterStudent;
 
-
-IF OBJECT_ID('sp_GetAllStudents', 'P') IS NOT NULL
-    DROP PROCEDURE sp_GetAllStudents;
+-- Get all students
 GO
-
 CREATE PROCEDURE sp_GetAllStudents
 AS
 BEGIN
@@ -28,9 +25,7 @@ END;
 GO
 
 
-IF OBJECT_ID('sp_AddToCart', 'P') IS NOT NULL
-    DROP PROCEDURE sp_AddToCart;
-GO
+
 
 CREATE PROCEDURE sp_AddToCart
     @StudentId INT,
@@ -43,46 +38,58 @@ BEGIN
     SET @IsSuccess = 0;
 
     BEGIN TRY
+		BEGIN TRAN
 
         DECLARE @CourseId INT;
+
         SELECT @CourseId = course_id 
         FROM CourseSection 
         WHERE section_id = @SectionId;
 
+		IF @CourseId IS NULL
+        BEGIN
+            SET @ResultMessage = 'Invalid section.';
+            ROLLBACK;
+            RETURN;
+        END
+
+		-- Check if already in cart (for THIS course, any section)
         IF EXISTS (
             SELECT 1
             FROM Cart 
-            WHERE student_id=@StudentId AND section_id=@SectionId	
+            WHERE student_id=@StudentId 
+				AND course_id=@CourseId	
         )
         BEGIN 
             SET @ResultMessage = 'Course already in cart';
+			ROLLBACK;
             RETURN;
         END
 
+		-- Check if already enrolled or completed (THIS course, any section)
         IF EXISTS (
             SELECT 1
             FROM Enrollment 
-            WHERE student_id = @StudentId AND section_id = @SectionId
+            WHERE student_id = @StudentId 
+				AND course_id = @CourseId
+				AND status IN ('Enrolled', 'Completed')
         )
         BEGIN
-            SET @ResultMessage = 'Already enrolled in this course';
-            RETURN;
+            SET @ResultMessage = 'Already enrolled in or completed this course';
+            ROLLBACK;
+			RETURN;
         END
 
-        INSERT INTO Cart(student_id, course_id, section_id)
-        VALUES (@StudentId, @CourseId, @SectionId);
-
-		-- 3. Check if prereqs met
+		-- Check if prereqs met (using materialized  view)
 		IF EXISTS (
             SELECT 1
             FROM Prerequisite p
             WHERE p.course_id = @CourseId
               AND p.prerequisite_course_id NOT IN (
-                  SELECT e.course_id
-                  FROM Enrollment e
-                  WHERE e.student_id = @StudentId
-                    AND e.status = 'Completed'
-                    AND e.grade >= p.minimum_grade
+                  SELECT mv.course_id
+                  FROM mv_StudentCompletedCourses mv
+                  WHERE mv.student_id = @StudentId
+                    AND mv.grade >= p.minimum_grade
               )
         )
 
@@ -95,59 +102,53 @@ BEGIN
 			JOIN Course c ON p.prerequisite_course_id = c.course_id
 			WHERE p.course_id = @CourseId
 			AND p.prerequisite_course_id NOT IN (
-				SELECT e.course_id
-				FROM Enrollment e
-				WHERE e.student_id = @StudentId
-				AND e.status = 'Completed'
-				AND e.grade >= p.minimum_grade
+				SELECT mv.course_id
+				FROM mv_StudentCompletedCourses mv
+				WHERE mv.student_id = @StudentId
+				AND mv.grade >= p.minimum_grade
 			);
 			SET @ResultMessage = 'Prerequisites not met: ' + ISNULL(@MissingCourses, 'Unknown prerequisites');
+			ROLLBACK;
+            RETURN;
+        END
+
+		-- Check for schedule conflict
+		IF EXISTS (
+            SELECT 1
+            FROM CourseSchedule n
+            JOIN CourseSchedule e
+                ON n.day_of_week=e.day_of_week
+               AND n.start_time < e.end_time
+               AND n.end_time > e.start_time
+            WHERE n.section_id=@SectionId
+              AND e.section_id IN (
+                    SELECT section_id FROM Enrollment WHERE student_id=@StudentId
+                    UNION
+                    SELECT section_id FROM Cart WHERE student_id=@StudentId
+              )
+        )
+        BEGIN
+            SET @ResultMessage='Schedule conflict with existing course.';
+            ROLLBACK;
             RETURN;
         END
 
 		-- Add to cart
-		BEGIN TRANSACTION;
-
-			INSERT INTO Cart(student_id, course_id, section_id)
-			VALUES(@StudentId, @CourseId, @SectionId);
+		INSERT INTO Cart(student_id, course_id, section_id)
+		VALUES(@StudentId, @CourseId, @SectionId);
 
 		COMMIT TRANSACTION;
 
-		SET @IsSuccess = 1;
         SET @IsSuccess = 1;
         SET @ResultMessage = 'Added to cart successfully';
 
 	END TRY
+
 	BEGIN CATCH
-		ROLLBACK TRANSACTION;
+		IF @@TRANCOUNT>0 ROLLBACK;
 		SET @IsSuccess = 0;
-    END TRY
-    BEGIN CATCH
-        SET @IsSuccess = 0;
         SET @ResultMessage = 'Error: ' + ERROR_MESSAGE();
     END CATCH
-END;
-GO
-
-/*
-EXEC sp_helptext 'sp_AddToCart';
-
-DELETE FROM Cart WHERE student_id = 1000 AND section_id = 40;
-DECLARE @Message VARCHAR(500);
-DECLARE @Success BIT;
-
-EXEC sp_AddToCart 
-    @StudentId = 1000, 
-    @SectionId = 40, 
-    @ResultMessage = @Message OUTPUT, 
-    @IsSuccess = @Success OUTPUT;
-
-PRINT 'Success: ' + CAST(@Success AS VARCHAR);
-PRINT 'Message: ' + @Message;
-
--- Check result
-SELECT * FROM Cart WHERE student_id = 1000;
-*/
 END;
 GO
 
@@ -186,23 +187,23 @@ BEGIN
 END;
 GO
 
-CREATE OR ALTER PROCEDURE sp_GetCourseSchedule
+CREATE PROCEDURE sp_GetCourseSchedule
     @SectionId INT
 AS
 BEGIN
     SET NOCOUNT ON;
 
     BEGIN TRY
-        BEGIN TRAN;
+        BEGIN TRANSACTION;
 
         SELECT day_of_week, start_time, end_time
         FROM CourseSchedule
         WHERE section_id = @SectionId;
 
-        COMMIT;
+        COMMIT TRANSACTION;
     END TRY
     BEGIN CATCH
-        IF @@TRANCOUNT > 0 ROLLBACK;
+        ROLLBACK TRANSACTION
         THROW;
     END CATCH
 END;
@@ -210,39 +211,43 @@ END;
 
 GO
 CREATE PROCEDURE sp_GetStudentEnrollments
-    @StudentId INT,
-    @ResultMessage VARCHAR(200) OUTPUT
+    @StudentId INT
 AS
-BEGIN
+BEGIN 
     SET NOCOUNT ON;
 
-    IF NOT EXISTS (SELECT 1 FROM Student WHERE student_id = @StudentId)
-    BEGIN
-        SET @ResultMessage = 'Student not found';
-        RETURN;
-    END
+	BEGIN TRY
+        BEGIN TRANSACTION;
 
-    SET @ResultMessage = 'Success';
+		SELECT 
+			e.enrollment_id,
+			cs.section_id,
+			c.course_code,
+			c.title,
+			cs.term,
+			cs.year,
+			cs.section_number,
+			i.name AS instructor_name,
+			e.status,
+			e.grade
+		FROM Enrollment e
+		INNER JOIN CourseSection cs ON e.section_id = cs.section_id
+		INNER JOIN Course c ON e.course_id = c.course_id
+		INNER JOIN Instructor i ON cs.instructor_id = i.instructor_id
+		WHERE e.student_id = @StudentId
+		ORDER BY c.course_code;
 
-    SELECT 
-        e.enrollment_id,
-        c.course_code,
-        c.title,
-        cs.term,
-        cs.year,
-        cs.section_number,
-        i.name AS instructor_name,
-        e.status,
-        e.grade
-    FROM Enrollment e
-    INNER JOIN CourseSection cs 
-        ON e.section_id = cs.section_id
-    INNER JOIN Course c 
-        ON e.course_id = c.course_id
-    INNER JOIN Instructor i 
-        ON cs.instructor_id = i.instructor_id
-    WHERE e.student_id = @StudentId;
+		COMMIT TRANSACTION;
+	END TRY
+	BEGIN CATCH 
+		IF @@TRANCOUNT > 0
+			ROLLBACK TRANSACTION;
+		THROW;
+	END CATCH
 END;
+
+
+
 GO
 CREATE PROCEDURE sp_GetStudentCart
     @StudentId INT
@@ -256,31 +261,139 @@ BEGIN
         SELECT
             c.cart_id,
             c.section_id,
-
-            (SELECT course_code 
-             FROM Course 
-             WHERE course_id = c.course_id) AS course_code,
-
-            (SELECT title 
-             FROM Course 
-             WHERE course_id = c.course_id) AS title,
-
-            (SELECT term 
-             FROM CourseSection 
-             WHERE section_id = c.section_id) AS term,
-
-            (SELECT year 
-             FROM CourseSection 
-             WHERE section_id = c.section_id) AS year
-
+            co.course_code,
+            co.title,
+			cs.term,
+			cs.year,
+            cs.section_number,
+            i.name AS instructor
         FROM Cart c
-        WHERE c.student_id = @StudentId;
+        JOIN Course co ON c.course_id = co.course_id
+        JOIN CourseSection cs ON c.section_id = cs.section_id
+        JOIN Instructor i ON cs.instructor_id = i.instructor_id
+        WHERE c.student_id = @StudentId
+        ORDER BY co.course_code;
 
         COMMIT TRANSACTION;
     END TRY
     BEGIN CATCH
         IF @@TRANCOUNT > 0
             ROLLBACK TRANSACTION;
+    END CATCH
+END;
+GO
+
+GO
+CREATE PROCEDURE sp_RemoveFromCart
+    @StudentId INT,
+    @SectionId INT,
+    @ResultMessage VARCHAR(500) OUTPUT,
+    @IsSuccess BIT OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SET @IsSuccess = 0;
+    
+    BEGIN TRY
+        BEGIN TRANSACTION;
+        
+            -- Simple DELETE
+            DELETE FROM Cart 
+            WHERE student_id = @StudentId AND section_id = @SectionId;
+            
+            -- Check if anything was deleted
+            IF @@ROWCOUNT > 0
+            BEGIN
+                SET @IsSuccess = 1;
+                SET @ResultMessage = 'Removed from cart successfully';
+            END
+            ELSE
+            BEGIN
+                SET @IsSuccess = 0;
+                SET @ResultMessage = 'Item not found in cart';
+            END
+        
+        COMMIT TRANSACTION;
+        
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+            
+        SET @IsSuccess = 0;
+        SET @ResultMessage = 'Error: ' + ERROR_MESSAGE();
+    END CATCH
+END;
+GO
+
+-- sp_RegisterStudent
+CREATE PROCEDURE sp_RegisterStudent
+    @StudentId INT,
+    @SectionId INT,
+    @ResultMessage VARCHAR(500) OUTPUT,
+    @IsSuccess BIT OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SET @IsSuccess = 0;
+    
+    BEGIN TRY
+        BEGIN TRANSACTION;
+        
+            -- Get course_id
+            DECLARE @CourseId INT;
+            SELECT @CourseId = course_id 
+            FROM CourseSection 
+            WHERE section_id = @SectionId;
+            
+            IF @CourseId IS NULL
+            BEGIN
+                SET @ResultMessage = 'Section does not exist';
+                ROLLBACK TRANSACTION;
+                RETURN;
+            END
+            
+            -- Check if section full?
+            DECLARE @MaxCapacity INT, @CurrentEnrollment INT;
+            
+            SELECT 
+                @MaxCapacity = max_capacity,
+                @CurrentEnrollment = (
+                    SELECT COUNT(*) 
+                    FROM Enrollment 
+                    WHERE section_id = @SectionId 
+                      AND status = 'Enrolled'
+                )
+            FROM CourseSection
+            WHERE section_id = @SectionId;
+            
+            IF @CurrentEnrollment >= @MaxCapacity
+            BEGIN
+                SET @ResultMessage = 'Section is full - no seats available';
+                ROLLBACK TRANSACTION;
+                RETURN;
+            END
+            
+            -- Register student (with course_id)
+            INSERT INTO Enrollment (student_id, course_id, section_id, status, grade)
+            VALUES (@StudentId, @CourseId, @SectionId, 'Enrolled', 'I');
+            
+            -- Remove from cart
+            DELETE FROM Cart 
+            WHERE student_id = @StudentId AND section_id = @SectionId;
+            
+        COMMIT TRANSACTION;
+        
+        SET @IsSuccess = 1;
+        SET @ResultMessage = 'Registration successful';
+        
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+        
+        SET @IsSuccess = 0;
+        SET @ResultMessage = 'Error: ' + ERROR_MESSAGE();
     END CATCH
 END;
 GO

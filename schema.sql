@@ -131,6 +131,10 @@ CREATE TABLE Cart (
 );
 
 
+SET ANSI_NULLS ON
+SET QUOTED_IDENTIFIER ON
+GO
+
 /******** MATERIALIZED VIEWS ***********/
 /* 
 MV 3: Completed courses with grades (for prerequisites)
@@ -170,4 +174,3 @@ GO
 CREATE NONCLUSTERED INDEX IX_mv_StudentCompletedCourses_Grade 
 ON mv_StudentCompletedCourses (grade, student_id);
 GO
-

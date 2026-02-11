@@ -83,7 +83,11 @@ namespace SchoolDatabaseSystem
             {
                 DataTable enrollments = EnrollmentData.GetStudentEnrollments(studentId);
                 dataGridViewCourses.DataSource = enrollments;
+
+                // Hide ID columns
+                dataGridViewCourses.Columns["enrollment_id"].Visible = false;
                 dataGridViewCourses.Columns["section_id"].Visible = false;
+
                 dataGridViewSchedule.DataSource = null;
                 dataGridViewCourses.ClearSelection();
             }
@@ -105,7 +109,11 @@ namespace SchoolDatabaseSystem
             {
                 DataTable cart = CartData.GetStudentCart(studentId);
                 dataGridViewCourses.DataSource = cart;
+
+                // Hide ID columns
                 dataGridViewCourses.Columns["section_id"].Visible = false;
+                dataGridViewCourses.Columns["cart_id"].Visible = false;
+
                 dataGridViewSchedule.DataSource = null;
             }
             catch (Exception ex)
@@ -306,13 +314,15 @@ namespace SchoolDatabaseSystem
             int studentId = (int)comboBoxStudents.SelectedValue;
             int sectionId = Convert.ToInt32(dataGridViewCourses.SelectedRows[0].Cells["section_id"].Value);
 
-            if (CartData.RemoveFromCart(studentId, sectionId))
+            string message;
+            if (CartData.RemoveFromCart(studentId, sectionId, out message))
             {
+                MessageBox.Show(message, "Success");
                 LoadStudentCart(); // Refresh cart
             }
             else
             {
-                MessageBox.Show("Failed to remove item from cart.", "Error");
+                MessageBox.Show(message, "Error");
             }
         }
 
@@ -342,7 +352,15 @@ namespace SchoolDatabaseSystem
 
         private void buttonReturnCourse_Click(object sender, EventArgs e)
         {
-            RemoveCartItem();
+            if (radioCart.Checked)
+            {
+                RemoveCartItem();
+            }
+            else if (radioStudent.Checked)
+            {
+                //RemoveEnrolledCourse();
+            }
+
         }
 
         private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)

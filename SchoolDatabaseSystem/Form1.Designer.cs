@@ -118,7 +118,7 @@
             groupBoxTerm.Controls.Add(label1);
             groupBoxTerm.Location = new Point(12, 22);
             groupBoxTerm.Name = "groupBoxTerm";
-            groupBoxTerm.Size = new Size(1150, 59);
+            groupBoxTerm.Size = new Size(1216, 59);
             groupBoxTerm.TabIndex = 4;
             groupBoxTerm.TabStop = false;
             groupBoxTerm.Enter += groupBox1_Enter;
@@ -198,7 +198,7 @@
             groupBoxCourses.Controls.Add(label3);
             groupBoxCourses.Location = new Point(14, 103);
             groupBoxCourses.Name = "groupBoxCourses";
-            groupBoxCourses.Size = new Size(685, 296);
+            groupBoxCourses.Size = new Size(688, 296);
             groupBoxCourses.TabIndex = 8;
             groupBoxCourses.TabStop = false;
             // 
@@ -208,7 +208,7 @@
             dataGridViewCourses.Location = new Point(4, 47);
             dataGridViewCourses.Name = "dataGridViewCourses";
             dataGridViewCourses.RowHeadersWidth = 51;
-            dataGridViewCourses.Size = new Size(863, 243);
+            dataGridViewCourses.Size = new Size(684, 243);
             dataGridViewCourses.TabIndex = 13;
             dataGridViewCourses.SelectionChanged += dataGridViewCourses_SelectionChanged;
             // 
@@ -305,7 +305,7 @@
             groupBox_summary.ForeColor = Color.DimGray;
             groupBox_summary.Location = new Point(726, 103);
             groupBox_summary.Name = "groupBox_summary";
-            groupBox_summary.Size = new Size(436, 297);
+            groupBox_summary.Size = new Size(508, 297);
             groupBox_summary.TabIndex = 9;
             groupBox_summary.TabStop = false;
             groupBox_summary.Text = "Course Schedule";
@@ -316,7 +316,7 @@
             dataGridViewSchedule.Location = new Point(6, 47);
             dataGridViewSchedule.Name = "dataGridViewSchedule";
             dataGridViewSchedule.RowHeadersWidth = 51;
-            dataGridViewSchedule.Size = new Size(573, 243);
+            dataGridViewSchedule.Size = new Size(496, 243);
             dataGridViewSchedule.TabIndex = 0;
             // 
             // button_clear
