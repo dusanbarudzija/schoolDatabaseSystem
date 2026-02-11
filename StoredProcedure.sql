@@ -240,7 +240,7 @@ BEGIN
             RETURN;
         END
 
-		-- Check for schedule conflict
+		-- Check for schedule conflict with ONLY Enrolled courses
 		IF EXISTS (
             SELECT 1
             FROM CourseSchedule n
@@ -249,10 +249,16 @@ BEGIN
                AND n.start_time < e.end_time
                AND n.end_time > e.start_time
             WHERE n.section_id=@SectionId
-              AND e.section_id IN (
-                    SELECT section_id FROM Enrollment WHERE student_id=@StudentId
+              AND e.section_id
+			   IN (
+                    SELECT section_id
+					FROM Enrollment 
+					WHERE student_id=@StudentId
+						AND status = 'Enrolled'
                     UNION
-                    SELECT section_id FROM Cart WHERE student_id=@StudentId
+                    SELECT section_id 
+					FROM Cart 
+					WHERE student_id=@StudentId
               )
         )
         BEGIN
