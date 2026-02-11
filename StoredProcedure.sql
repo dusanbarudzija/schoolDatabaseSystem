@@ -24,15 +24,7 @@ BEGIN
 END;
 
 -- Get available sections
-CREATE PROCEDURE sp_GetAvailableSections
-	@Term VARCHAR(20),
-	@Year INT
-AS 
-BEGIN
-	SET NOCOUNT ON;
 
-	SELECT cs.section_id,
-END
 
 -- Add course to cart
 CREATE PROCEDURE sp_AddToCart

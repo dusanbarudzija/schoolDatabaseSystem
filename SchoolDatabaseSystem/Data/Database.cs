@@ -25,8 +25,39 @@ namespace SchoolDatabaseSystem.Data
             }
         }
 
+        public static DataTable ExecuteQuery(string query, SqlParameter[] parameters = null)
+        {
+            DataTable dataTable = new DataTable();
 
-    public static bool ExecuteStoredProcedure(
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(connectionString))
+                {
+                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    {
+                        if (parameters != null)
+                        {
+                            cmd.Parameters.AddRange(parameters);
+                        }
+
+                        conn.Open();
+                        using (SqlDataAdapter adapter = new SqlDataAdapter(cmd))
+                        {
+                            adapter.Fill(dataTable);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Database query error: {ex.Message}");
+            }
+
+            return dataTable;
+        }
+
+
+        public static bool ExecuteStoredProcedure(
         string procedureName,
         SqlParameter[] parameters,
         out string resultMessage,
