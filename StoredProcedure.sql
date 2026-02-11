@@ -139,4 +139,81 @@ BEGIN
         THROW;
     END CATCH
 END;
+
+
+GO
+CREATE PROCEDURE sp_GetStudentEnrollments
+    @StudentId INT,
+    @ResultMessage VARCHAR(200) OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF NOT EXISTS (SELECT 1 FROM Student WHERE student_id = @StudentId)
+    BEGIN
+        SET @ResultMessage = 'Student not found';
+        RETURN;
+    END
+
+    SET @ResultMessage = 'Success';
+
+    SELECT 
+        e.enrollment_id,
+        c.course_code,
+        c.title,
+        cs.term,
+        cs.year,
+        cs.section_number,
+        i.name AS instructor_name,
+        e.status,
+        e.grade
+    FROM Enrollment e
+    INNER JOIN CourseSection cs 
+        ON e.section_id = cs.section_id
+    INNER JOIN Course c 
+        ON e.course_id = c.course_id
+    INNER JOIN Instructor i 
+        ON cs.instructor_id = i.instructor_id
+    WHERE e.student_id = @StudentId;
+END;
+GO
+CREATE PROCEDURE sp_GetStudentCart
+    @StudentId INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    BEGIN TRY
+        BEGIN TRANSACTION;
+
+        SELECT
+            c.cart_id,
+            c.section_id,
+
+            (SELECT course_code 
+             FROM Course 
+             WHERE course_id = c.course_id) AS course_code,
+
+            (SELECT title 
+             FROM Course 
+             WHERE course_id = c.course_id) AS title,
+
+            (SELECT term 
+             FROM CourseSection 
+             WHERE section_id = c.section_id) AS term,
+
+            (SELECT year 
+             FROM CourseSection 
+             WHERE section_id = c.section_id) AS year
+
+        FROM Cart c
+        WHERE c.student_id = @StudentId;
+
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+    END CATCH
+END;
 GO
