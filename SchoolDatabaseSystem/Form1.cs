@@ -1,90 +1,127 @@
 using Microsoft.Data.SqlClient;
 using System.Data;
+using SchoolDatabaseSystem.Data;
 
 namespace SchoolDatabaseSystem
 {
     public partial class Form1 : Form
     {
-        private readonly string connectionString = "Server=localhost;Database=UniRegistration;Trusted_Connection=True;TrustServerCertificate=True;";
-
-        private void DatabaseConnection()
-        {
-            using (SqlConnection conn = new SqlConnection(connectionString))
-            {
-                try
-                {
-                    conn.Open();
-                    //MessageBox.Show("Database connection successful!");
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.ToString(), "Error");
-                    this.Close();
-                }
-            }
-        }
         public Form1()
         {
             InitializeComponent();
             LoadTerms();
             LoadYears();
-            DatabaseConnection();
+            TestDatabaseConnection();
             LoadStudents();
             LoadAvailableSections();
         }
 
-
-        private void LoadStudents()
+        private void TestDatabaseConnection()
         {
-            using (SqlConnection conn = new SqlConnection(connectionString))
+            string errorMessage;
+            if (!Database.DatabaseConnection(out errorMessage))
             {
-                string query = "SELECT student_id, name FROM Student";
-
-                SqlDataAdapter adapter = new SqlDataAdapter(query, conn);
-                DataTable table = new DataTable();
-                adapter.Fill(table);
-
-                comboBoxStudents.DisplayMember = "name";
-                comboBoxStudents.ValueMember = "student_id";
-                comboBoxStudents.DataSource = table;
+                MessageBox.Show($"Database connection failed: {errorMessage}", "Error");
+                this.Close();
             }
         }
 
+
+        // Load students into dropdown
+        private void LoadStudents()
+        {
+            try
+            {
+                DataTable students = StudentData.GetAllStudents();
+                comboBoxStudents.DisplayMember = "name";
+                comboBoxStudents.ValueMember = "student_id";
+                comboBoxStudents.DataSource = students;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error loading students: {ex.Message}", "Error");
+            }
+        }
+
+        // Load available sections for selected term/year
         private void LoadAvailableSections()
         {
             if (comboBoxTerm.SelectedItem == null || comboBoxYear.SelectedItem == null)
                 return;
 
-            using (SqlConnection conn = new SqlConnection(connectionString))
+            try
             {
-                string query = @"
-        SELECT
-            cs.section_id,
-            c.course_code,
-            c.title,
-            cs.section_number,
-            i.name AS instructor,
-            cs.max_capacity -
-                (SELECT COUNT(*) FROM Enrollment e WHERE e.section_id = cs.section_id)
-                AS seats_remaining
-        FROM CourseSection cs
-        JOIN Course c ON cs.course_id = c.course_id
-        JOIN Instructor i ON cs.instructor_id = i.instructor_id
-        WHERE cs.term = @term
-          AND cs.year = @year";
+                string term = comboBoxTerm.SelectedItem.ToString();
+                int year = (int)comboBoxYear.SelectedItem;
 
-                SqlDataAdapter adapter = new SqlDataAdapter(query, conn);
-                adapter.SelectCommand.Parameters.AddWithValue("@term", comboBoxTerm.SelectedItem.ToString());
-                adapter.SelectCommand.Parameters.AddWithValue("@year", (int)comboBoxYear.SelectedItem);
-
-                DataTable table = new DataTable();
-                adapter.Fill(table);
-
-                dataGridViewCourses.DataSource = table;
+                DataTable sections = CourseData.GetAvailableSections(term, year);
+                dataGridViewCourses.DataSource = sections;
                 dataGridViewCourses.Columns["section_id"].Visible = false;
-
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error loading sections: {ex.Message}", "Error");
             }
         }
+
+        // Load student's enrolled courses
+        private void ShowStudentCourses()
+        {
+            dataGridViewSchedule.DataSource = null;
+
+            if (comboBoxStudents.SelectedValue == null)
+                return;
+
+            int studentId = (int)comboBoxStudents.SelectedValue;
+
+            // Disable controls
+            comboBoxTerm.Enabled = false;
+            comboBoxYear.Enabled = false;
+            buttonAddToCart.Enabled = false;
+
+            try
+            {
+                DataTable enrollments = EnrollmentData.GetStudentEnrollments(studentId);
+                dataGridViewCourses.DataSource = enrollments;
+
+                // Hide ID columns
+                dataGridViewCourses.Columns["enrollment_id"].Visible = false;
+                dataGridViewCourses.Columns["section_id"].Visible = false;
+
+                dataGridViewSchedule.DataSource = null;
+                dataGridViewCourses.ClearSelection();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error loading enrollments: {ex.Message}", "Error");
+            }
+        }
+
+        // Load student's shopping cart
+        private void LoadStudentCart()
+        {
+            if (comboBoxStudents.SelectedValue == null)
+                return;
+
+            int studentId = (int)comboBoxStudents.SelectedValue;
+
+            try
+            {
+                DataTable cart = CartData.GetStudentCart(studentId);
+                dataGridViewCourses.DataSource = cart;
+
+                // Hide ID columns
+                dataGridViewCourses.Columns["section_id"].Visible = false;
+                dataGridViewCourses.Columns["cart_id"].Visible = false;
+
+                dataGridViewSchedule.DataSource = null;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error loading cart: {ex.Message}", "Error");
+            }
+        }
+
 
         private void LoadTerms()
         {
@@ -108,79 +145,27 @@ namespace SchoolDatabaseSystem
             comboBoxYear.SelectedIndex = 0;
         }
 
-        private bool IsSectionFull(SqlConnection conn, SqlTransaction tran, int sectionId)
-        {
-            string query = @"
-    SELECT 
-        cs.max_capacity -
-        COUNT(e.enrollment_id)
-    FROM CourseSection cs
-    LEFT JOIN Enrollment e ON cs.section_id = e.section_id
-    WHERE cs.section_id = @sectionId
-    GROUP BY cs.max_capacity";
-
-            SqlCommand cmd = new SqlCommand(query, conn, tran);
-            cmd.Parameters.AddWithValue("@sectionId", sectionId);
-
-            object result = cmd.ExecuteScalar();
-
-            if (result == null)
-                return true;
-
-            int seatsRemaining = Convert.ToInt32(result);
-
-            return seatsRemaining <= 0;
-        }
-
-
         private void groupBox1_Enter(object sender, EventArgs e)
         {
 
         }
 
+        // Load course schedule
         private void LoadSchedule(int sectionId)
         {
-            using (SqlConnection conn = new SqlConnection(connectionString))
+            try
             {
-                string query = @"
-        SELECT
-            day_of_week,
-            start_time,
-            end_time
-        FROM CourseSchedule
-        WHERE section_id = @sectionId";
-
-                SqlDataAdapter adapter = new SqlDataAdapter(query, conn);
-                adapter.SelectCommand.Parameters.AddWithValue("@sectionId", sectionId);
-
-                DataTable table = new DataTable();
-                adapter.Fill(table);
-
-                dataGridViewSchedule.DataSource = table;
-
+                DataTable schedule = CourseData.GetCourseSchedule(sectionId);
+                dataGridViewSchedule.DataSource = schedule;
                 dataGridViewSchedule.ClearSelection();
                 dataGridViewSchedule.ReadOnly = true;
             }
-        }
-
-
-        private void textBoxCourses_Enter(object sender, EventArgs e)
-        {
-            if (textBoxCourses.Text == "Select courses...")
+            catch (Exception ex)
             {
-                textBoxCourses.Text = "";
-                textBoxCourses.ForeColor = Color.Black;
+                MessageBox.Show($"Error loading schedule: {ex.Message}", "Error");
             }
         }
 
-        private void textBoxCourses_Leave(object sender, EventArgs e)
-        {
-            if (textBoxCourses.Text == "")
-            {
-                textBoxCourses.Text = "Select courses...";
-                textBoxCourses.ForeColor = Color.Gray;
-            }
-        }
 
         private void comboBox3_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -191,48 +176,7 @@ namespace SchoolDatabaseSystem
         }
 
 
-        private void ShowStudentCourses()
-        {
-            dataGridViewSchedule.DataSource = null;
-            if (comboBoxStudents.SelectedValue == null)
-                return;
 
-            int studentId = (int)comboBoxStudents.SelectedValue;
-
-            comboBoxTerm.Enabled = false;
-            comboBoxYear.Enabled = false;
-            buttonAddToCart.Enabled = false;
-
-            using (SqlConnection conn = new SqlConnection(connectionString))
-            {
-                string query = @"
-        SELECT
-            cs.section_id,
-            c.course_code,
-            c.title,
-            cs.section_number,
-            i.name AS instructor,
-            cs.term,
-            cs.year
-        FROM Enrollment e
-        JOIN CourseSection cs ON e.section_id = cs.section_id
-        JOIN Course c ON cs.course_id = c.course_id
-        JOIN Instructor i ON cs.instructor_id = i.instructor_id
-        WHERE e.student_id = @studentId";
-
-                SqlDataAdapter adapter = new SqlDataAdapter(query, conn);
-                adapter.SelectCommand.Parameters.AddWithValue("@studentId", studentId);
-
-                DataTable table = new DataTable();
-                adapter.Fill(table);
-                dataGridViewCourses.DataSource = table;
-                dataGridViewCourses.Columns["section_id"].Visible = false;
-                dataGridViewSchedule.DataSource = null;
-
-
-                dataGridViewCourses.ClearSelection();
-            }
-        }
 
         private void comboBoxTerm_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -263,28 +207,11 @@ namespace SchoolDatabaseSystem
 
             LoadSchedule(sectionId);
         }
-        private bool IsAlreadyEnrolled(int studentId, int sectionId)
-        {
-            using (SqlConnection conn = new SqlConnection(connectionString))
-            {
-                string query = @"
-        SELECT COUNT(*)
-        FROM Enrollment
-        WHERE student_id = @studentId
-          AND section_id = @sectionId";
 
-                SqlCommand cmd = new SqlCommand(query, conn);
-                cmd.Parameters.AddWithValue("@studentId", studentId);
-                cmd.Parameters.AddWithValue("@sectionId", sectionId);
 
-                conn.Open();
-
-                int count = (int)cmd.ExecuteScalar();
-
-                return count > 0;
-            }
-        }
-
+        // ============================================
+        // RADIO BUTTON EVENT HANDLERS
+        // ============================================
         private void studentRadioButton_CheckedChanged(object sender, EventArgs e)
         {
             if (radioStudent.Checked)
@@ -294,7 +221,7 @@ namespace SchoolDatabaseSystem
 
                 buttonAddToCart.Visible = false;
                 buttonRegisterCart.Visible = false;
-                buttonReturnCourse.Visible = false;
+                buttonReturnCourse.Visible = true;
                 ShowStudentCourses();
             }
             else
@@ -336,136 +263,50 @@ namespace SchoolDatabaseSystem
 
             LoadStudentCart();
         }
+
+        /* =================
+         * CART OPERATIONS
+         =================== */
+
+        // Add course to cart
         private void AddToCart(int studentId, int sectionId)
         {
-            using (SqlConnection conn = new SqlConnection(connectionString))
+            string message;
+            if (CartData.AddToCart(studentId, sectionId, out message))
             {
-                conn.Open();
-
-                // Already enrolled?
-                if (IsAlreadyEnrolled(studentId, sectionId))
-                {
-                    MessageBox.Show("Student already enrolled.");
-                    return;
-                }
-
-                // Already in cart?
-                string existsQuery = "SELECT COUNT(*) FROM Cart WHERE student_id=@s AND section_id=@sec";
-                SqlCommand existsCmd = new SqlCommand(existsQuery, conn);
-                existsCmd.Parameters.AddWithValue("@s", studentId);
-                existsCmd.Parameters.AddWithValue("@sec", sectionId);
-
-                if ((int)existsCmd.ExecuteScalar() > 0)
-                {
-                    MessageBox.Show("Course already in cart.");
-                    return;
-                }
-
-                /*
-                    ====================================
-                    SCHEDULE CONFLICT CHECK GOES HERE
-                    PREREQUISITE CHECK GOES HERE
-                    ====================================
-                */
-
-                string insert = "INSERT INTO Cart(student_id, section_id) VALUES(@s,@sec)";
-                SqlCommand cmd = new SqlCommand(insert, conn);
-                cmd.Parameters.AddWithValue("@s", studentId);
-                cmd.Parameters.AddWithValue("@sec", sectionId);
-                cmd.ExecuteNonQuery();
-
-                MessageBox.Show("Added to cart.");
+                MessageBox.Show(message, "Success");
+            }
+            else
+            {
+                MessageBox.Show(message, "Cannot Add");
             }
         }
-        private void LoadStudentCart()
-        {
-            if (comboBoxStudents.SelectedValue == null)
-                return;
 
-            int studentId = (int)comboBoxStudents.SelectedValue;
-
-            using (SqlConnection conn = new SqlConnection(connectionString))
-            {
-                string query = @"
-        SELECT
-            cs.section_id,
-            c.course_code,
-            c.title,
-            cs.section_number,
-            i.name AS instructor,
-            cs.term,
-            cs.year
-        FROM Cart ct
-        JOIN CourseSection cs ON ct.section_id = cs.section_id
-        JOIN Course c ON cs.course_id = c.course_id
-        JOIN Instructor i ON cs.instructor_id = i.instructor_id
-        WHERE ct.student_id = @studentId";
-
-                SqlDataAdapter ad = new SqlDataAdapter(query, conn);
-                ad.SelectCommand.Parameters.AddWithValue("@studentId", studentId);
-
-                DataTable t = new DataTable();
-                ad.Fill(t);
-
-                dataGridViewCourses.DataSource = t;
-                dataGridViewCourses.Columns["section_id"].Visible = false;
-                dataGridViewSchedule.DataSource = null;
-            }
-        }
         private void RegisterSelectedCartItem()
         {
             if (comboBoxStudents.SelectedValue == null || dataGridViewCourses.SelectedRows.Count == 0)
             {
-                MessageBox.Show("Select cart item.");
+                MessageBox.Show("Please select a cart item.", "No Selection");
                 return;
             }
 
             int studentId = (int)comboBoxStudents.SelectedValue;
             int sectionId = Convert.ToInt32(dataGridViewCourses.SelectedRows[0].Cells["section_id"].Value);
 
-            using (SqlConnection conn = new SqlConnection(connectionString))
+            string message;
+            if (CartData.RegisterCartItem(studentId, sectionId, out message))
             {
-                conn.Open();
-                SqlTransaction tran = conn.BeginTransaction();
-
-                try
-                {
-                    if (IsSectionFull(conn, tran, sectionId))
-                    {
-                        MessageBox.Show("No space available.");
-                        tran.Rollback();
-                        return;
-                    }
-
-                    string insertEnroll = @"
-            INSERT INTO Enrollment(enrollment_id, student_id, section_id)
-            VALUES((SELECT ISNULL(MAX(enrollment_id),0)+1 FROM Enrollment),@s,@sec)";
-
-                    SqlCommand enrollCmd = new SqlCommand(insertEnroll, conn, tran);
-                    enrollCmd.Parameters.AddWithValue("@s", studentId);
-                    enrollCmd.Parameters.AddWithValue("@sec", sectionId);
-                    enrollCmd.ExecuteNonQuery();
-
-                    string deleteCart = "DELETE FROM Cart WHERE student_id=@s AND section_id=@sec";
-                    SqlCommand del = new SqlCommand(deleteCart, conn, tran);
-                    del.Parameters.AddWithValue("@s", studentId);
-                    del.Parameters.AddWithValue("@sec", sectionId);
-                    del.ExecuteNonQuery();
-
-                    tran.Commit();
-
-                    MessageBox.Show("Registered.");
-
-                    LoadStudentCart();
-                }
-                catch (Exception ex)
-                {
-                    tran.Rollback();
-                    MessageBox.Show(ex.Message);
-                }
+                MessageBox.Show(message, "Success");
+                LoadStudentCart(); // Refresh cart
+            }
+            else
+            {
+                MessageBox.Show(message, "Registration Failed");
             }
         }
-        private void ReturnCartItem()
+
+        // Remove course from cart
+        private void RemoveCartItem()
         {
             if (comboBoxStudents.SelectedValue == null || dataGridViewCourses.SelectedRows.Count == 0)
                 return;
@@ -473,23 +314,50 @@ namespace SchoolDatabaseSystem
             int studentId = (int)comboBoxStudents.SelectedValue;
             int sectionId = Convert.ToInt32(dataGridViewCourses.SelectedRows[0].Cells["section_id"].Value);
 
-            using (SqlConnection conn = new SqlConnection(connectionString))
+            string message;
+            if (CartData.RemoveFromCart(studentId, sectionId, out message))
             {
-                conn.Open();
-
-                string q = "DELETE FROM Cart WHERE student_id=@s AND section_id=@sec";
-                SqlCommand cmd = new SqlCommand(q, conn);
-                cmd.Parameters.AddWithValue("@s", studentId);
-                cmd.Parameters.AddWithValue("@sec", sectionId);
-                cmd.ExecuteNonQuery();
-
-                LoadStudentCart();
+                MessageBox.Show(message, "Success");
+                LoadStudentCart(); // Refresh cart
+            }
+            else
+            {
+                MessageBox.Show(message, "Error");
             }
         }
+
+        private void RemoveEnrolledCourse()
+        {
+            if (comboBoxStudents.SelectedValue == null || dataGridViewCourses.SelectedRows.Count == 0)
+                return;
+
+            int studentId = (int)comboBoxStudents.SelectedValue;
+            int sectionId = Convert.ToInt32(dataGridViewCourses.SelectedRows[0].Cells["section_id"].Value);
+
+            string message;
+            if (EnrollmentData.RemoveEnrolledCourse(studentId, sectionId, out message))
+            {
+                MessageBox.Show(message, "Success");
+                ShowStudentCourses(); // Refresh student's courses
+            }
+            else
+            {
+                MessageBox.Show(message, "Error");
+            }
+        }
+
+
+        // ============================================
+        // BUTTON CLICK EVENT HANDLERS
+        // ============================================
+
         private void buttonAddToCart_Click(object sender, EventArgs e)
         {
             if (comboBoxStudents.SelectedValue == null || dataGridViewCourses.SelectedRows.Count == 0)
+            {
+                MessageBox.Show("Please select a student and a course.", "No Selection");
                 return;
+            }
 
             int studentId = (int)comboBoxStudents.SelectedValue;
             int sectionId = Convert.ToInt32(dataGridViewCourses.SelectedRows[0].Cells["section_id"].Value);
@@ -504,7 +372,20 @@ namespace SchoolDatabaseSystem
 
         private void buttonReturnCourse_Click(object sender, EventArgs e)
         {
-            ReturnCartItem();
+            if (radioCart.Checked)
+            {
+                RemoveCartItem();
+            }
+            else if (radioStudent.Checked)
+            {
+                RemoveEnrolledCourse();
+            }
+
+        }
+
+        private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
         }
     }
 }

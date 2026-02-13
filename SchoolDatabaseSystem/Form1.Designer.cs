@@ -39,8 +39,6 @@
             comboBoxStudents = new ComboBox();
             StudentLabel = new Label();
             label3 = new Label();
-            comboBox2 = new ComboBox();
-            textBoxCourses = new TextBox();
             groupBoxCourses = new GroupBox();
             dataGridViewCourses = new DataGridView();
             groupBoxCourseDescription = new GroupBox();
@@ -72,7 +70,7 @@
             label1.Font = new Font("Segoe UI", 10.8F, FontStyle.Bold, GraphicsUnit.Point, 0);
             label1.Location = new Point(195, 25);
             label1.Name = "label1";
-            label1.Size = new Size(49, 20);
+            label1.Size = new Size(59, 25);
             label1.TabIndex = 0;
             label1.Text = "Term:";
             // 
@@ -82,7 +80,7 @@
             comboBoxTerm.Items.AddRange(new object[] { "Fall", "Winter", "Spring", "Summer" });
             comboBoxTerm.Location = new Point(250, 22);
             comboBoxTerm.Name = "comboBoxTerm";
-            comboBoxTerm.Size = new Size(108, 23);
+            comboBoxTerm.Size = new Size(108, 28);
             comboBoxTerm.TabIndex = 1;
             comboBoxTerm.SelectedIndexChanged += comboBoxTerm_SelectedIndexChanged;
             // 
@@ -92,7 +90,7 @@
             comboBoxYear.Items.AddRange(new object[] { "Need to use sample data to populate" });
             comboBoxYear.Location = new Point(419, 22);
             comboBoxYear.Name = "comboBoxYear";
-            comboBoxYear.Size = new Size(108, 23);
+            comboBoxYear.Size = new Size(108, 28);
             comboBoxYear.TabIndex = 3;
             comboBoxYear.SelectedIndexChanged += comboBoxYear_SelectedIndexChanged;
             // 
@@ -102,7 +100,7 @@
             label2.Font = new Font("Segoe UI", 10.8F, FontStyle.Bold, GraphicsUnit.Point, 0);
             label2.Location = new Point(369, 25);
             label2.Name = "label2";
-            label2.Size = new Size(44, 20);
+            label2.Size = new Size(54, 25);
             label2.TabIndex = 2;
             label2.Text = "Year:";
             // 
@@ -120,7 +118,7 @@
             groupBoxTerm.Controls.Add(label1);
             groupBoxTerm.Location = new Point(12, 22);
             groupBoxTerm.Name = "groupBoxTerm";
-            groupBoxTerm.Size = new Size(1132, 59);
+            groupBoxTerm.Size = new Size(1216, 59);
             groupBoxTerm.TabIndex = 4;
             groupBoxTerm.TabStop = false;
             groupBoxTerm.Enter += groupBox1_Enter;
@@ -128,9 +126,9 @@
             // radioAvailable
             // 
             radioAvailable.AutoSize = true;
-            radioAvailable.Location = new Point(782, 22);
+            radioAvailable.Location = new Point(722, 23);
             radioAvailable.Name = "radioAvailable";
-            radioAvailable.Size = new Size(118, 19);
+            radioAvailable.Size = new Size(147, 24);
             radioAvailable.TabIndex = 9;
             radioAvailable.TabStop = true;
             radioAvailable.Text = "Available Courses";
@@ -140,9 +138,9 @@
             // radioCart
             // 
             radioCart.AutoSize = true;
-            radioCart.Location = new Point(906, 22);
+            radioCart.Location = new Point(875, 23);
             radioCart.Name = "radioCart";
-            radioCart.Size = new Size(91, 19);
+            radioCart.Size = new Size(112, 24);
             radioCart.TabIndex = 8;
             radioCart.TabStop = true;
             radioCart.Text = "Student Cart";
@@ -152,9 +150,9 @@
             // radioStudent
             // 
             radioStudent.AutoSize = true;
-            radioStudent.Location = new Point(1003, 22);
+            radioStudent.Location = new Point(997, 23);
             radioStudent.Name = "radioStudent";
-            radioStudent.Size = new Size(111, 19);
+            radioStudent.Size = new Size(136, 24);
             radioStudent.TabIndex = 7;
             radioStudent.TabStop = true;
             radioStudent.Text = "Student Courses";
@@ -165,9 +163,9 @@
             // 
             comboBoxStudents.FormattingEnabled = true;
             comboBoxStudents.Items.AddRange(new object[] { "Need to use sample data to populate" });
-            comboBoxStudents.Location = new Point(79, 22);
+            comboBoxStudents.Location = new Point(81, 21);
             comboBoxStudents.Name = "comboBoxStudents";
-            comboBoxStudents.Size = new Size(108, 23);
+            comboBoxStudents.Size = new Size(108, 28);
             comboBoxStudents.TabIndex = 5;
             comboBoxStudents.SelectedIndexChanged += comboBox3_SelectedIndexChanged;
             // 
@@ -175,9 +173,9 @@
             // 
             StudentLabel.AutoSize = true;
             StudentLabel.Font = new Font("Segoe UI", 10.8F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            StudentLabel.Location = new Point(5, 25);
+            StudentLabel.Location = new Point(0, 25);
             StudentLabel.Name = "StudentLabel";
-            StudentLabel.Size = new Size(68, 20);
+            StudentLabel.Size = new Size(84, 25);
             StudentLabel.TabIndex = 4;
             StudentLabel.Text = "Student:";
             // 
@@ -188,45 +186,19 @@
             label3.ForeColor = Color.DimGray;
             label3.Location = new Point(6, 19);
             label3.Name = "label3";
-            label3.Size = new Size(123, 15);
+            label3.Size = new Size(158, 20);
             label3.TabIndex = 5;
             label3.Text = "AVAILABLE COURSES";
-            // 
-            // comboBox2
-            // 
-            comboBox2.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
-            comboBox2.AutoCompleteSource = AutoCompleteSource.ListItems;
-            comboBox2.FormattingEnabled = true;
-            comboBox2.Items.AddRange(new object[] { "All", "Computer Science", "Mathematics", "Physics", "Statistics" });
-            comboBox2.Location = new Point(300, 47);
-            comboBox2.Name = "comboBox2";
-            comboBox2.Size = new Size(151, 23);
-            comboBox2.TabIndex = 6;
-            comboBox2.Text = "All";
-            comboBox2.Visible = false;
-            // 
-            // textBoxCourses
-            // 
-            textBoxCourses.Location = new Point(6, 50);
-            textBoxCourses.Name = "textBoxCourses";
-            textBoxCourses.Size = new Size(276, 23);
-            textBoxCourses.TabIndex = 7;
-            textBoxCourses.Text = "Search courses...";
-            textBoxCourses.Visible = false;
-            textBoxCourses.Enter += textBoxCourses_Enter;
-            textBoxCourses.Leave += textBoxCourses_Leave;
             // 
             // groupBoxCourses
             // 
             groupBoxCourses.BackColor = Color.WhiteSmoke;
             groupBoxCourses.Controls.Add(dataGridViewCourses);
             groupBoxCourses.Controls.Add(groupBoxCourseDescription);
-            groupBoxCourses.Controls.Add(textBoxCourses);
-            groupBoxCourses.Controls.Add(comboBox2);
             groupBoxCourses.Controls.Add(label3);
             groupBoxCourses.Location = new Point(14, 103);
             groupBoxCourses.Name = "groupBoxCourses";
-            groupBoxCourses.Size = new Size(676, 296);
+            groupBoxCourses.Size = new Size(688, 296);
             groupBoxCourses.TabIndex = 8;
             groupBoxCourses.TabStop = false;
             // 
@@ -235,7 +207,8 @@
             dataGridViewCourses.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dataGridViewCourses.Location = new Point(4, 47);
             dataGridViewCourses.Name = "dataGridViewCourses";
-            dataGridViewCourses.Size = new Size(666, 243);
+            dataGridViewCourses.RowHeadersWidth = 51;
+            dataGridViewCourses.Size = new Size(684, 243);
             dataGridViewCourses.TabIndex = 13;
             dataGridViewCourses.SelectionChanged += dataGridViewCourses_SelectionChanged;
             // 
@@ -248,9 +221,9 @@
             groupBoxCourseDescription.Controls.Add(label_instructor);
             groupBoxCourseDescription.Controls.Add(label_CourseName);
             groupBoxCourseDescription.Controls.Add(label_Code);
-            groupBoxCourseDescription.Location = new Point(6, 94);
+            groupBoxCourseDescription.Location = new Point(6, 47);
             groupBoxCourseDescription.Name = "groupBoxCourseDescription";
-            groupBoxCourseDescription.Size = new Size(519, 47);
+            groupBoxCourseDescription.Size = new Size(861, 47);
             groupBoxCourseDescription.TabIndex = 8;
             groupBoxCourseDescription.TabStop = false;
             groupBoxCourseDescription.Visible = false;
@@ -261,7 +234,7 @@
             label4.BackColor = Color.Gainsboro;
             label4.Location = new Point(309, 23);
             label4.Name = "label4";
-            label4.Size = new Size(74, 15);
+            label4.Size = new Size(93, 20);
             label4.TabIndex = 13;
             label4.Text = "Prerequisites";
             // 
@@ -271,7 +244,7 @@
             label_seats.BackColor = Color.Gainsboro;
             label_seats.Location = new Point(411, 23);
             label_seats.Name = "label_seats";
-            label_seats.Size = new Size(34, 15);
+            label_seats.Size = new Size(44, 20);
             label_seats.TabIndex = 13;
             label_seats.Text = "Seats";
             // 
@@ -281,7 +254,7 @@
             label_action.BackColor = Color.Gainsboro;
             label_action.Location = new Point(461, 23);
             label_action.Name = "label_action";
-            label_action.Size = new Size(42, 15);
+            label_action.Size = new Size(52, 20);
             label_action.TabIndex = 12;
             label_action.Text = "Action";
             // 
@@ -291,7 +264,7 @@
             label_schedule.BackColor = Color.Gainsboro;
             label_schedule.Location = new Point(234, 24);
             label_schedule.Name = "label_schedule";
-            label_schedule.Size = new Size(55, 15);
+            label_schedule.Size = new Size(69, 20);
             label_schedule.TabIndex = 11;
             label_schedule.Text = "Schedule";
             // 
@@ -301,7 +274,7 @@
             label_instructor.BackColor = Color.Gainsboro;
             label_instructor.Location = new Point(157, 23);
             label_instructor.Name = "label_instructor";
-            label_instructor.Size = new Size(58, 15);
+            label_instructor.Size = new Size(71, 20);
             label_instructor.TabIndex = 10;
             label_instructor.Text = "Instructor";
             // 
@@ -311,7 +284,7 @@
             label_CourseName.BackColor = Color.Gainsboro;
             label_CourseName.Location = new Point(53, 23);
             label_CourseName.Name = "label_CourseName";
-            label_CourseName.Size = new Size(79, 15);
+            label_CourseName.Size = new Size(98, 20);
             label_CourseName.TabIndex = 9;
             label_CourseName.Text = "Course Name";
             // 
@@ -321,7 +294,7 @@
             label_Code.BackColor = Color.Gainsboro;
             label_Code.Location = new Point(3, 23);
             label_Code.Name = "label_Code";
-            label_Code.Size = new Size(35, 15);
+            label_Code.Size = new Size(44, 20);
             label_Code.TabIndex = 0;
             label_Code.Text = "Code";
             // 
@@ -330,9 +303,9 @@
             groupBox_summary.Controls.Add(dataGridViewSchedule);
             groupBox_summary.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
             groupBox_summary.ForeColor = Color.DimGray;
-            groupBox_summary.Location = new Point(690, 103);
+            groupBox_summary.Location = new Point(726, 103);
             groupBox_summary.Name = "groupBox_summary";
-            groupBox_summary.Size = new Size(454, 297);
+            groupBox_summary.Size = new Size(508, 297);
             groupBox_summary.TabIndex = 9;
             groupBox_summary.TabStop = false;
             groupBox_summary.Text = "Course Schedule";
@@ -342,7 +315,8 @@
             dataGridViewSchedule.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dataGridViewSchedule.Location = new Point(6, 47);
             dataGridViewSchedule.Name = "dataGridViewSchedule";
-            dataGridViewSchedule.Size = new Size(430, 243);
+            dataGridViewSchedule.RowHeadersWidth = 51;
+            dataGridViewSchedule.Size = new Size(496, 243);
             dataGridViewSchedule.TabIndex = 0;
             // 
             // button_clear
@@ -350,7 +324,7 @@
             button_clear.BackColor = SystemColors.ControlDark;
             button_clear.FlatAppearance.BorderColor = SystemColors.ActiveBorder;
             button_clear.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            button_clear.Location = new Point(481, 406);
+            button_clear.Location = new Point(443, 405);
             button_clear.Name = "button_clear";
             button_clear.Size = new Size(144, 39);
             button_clear.TabIndex = 10;
@@ -363,7 +337,7 @@
             button_cancel.BackColor = SystemColors.ControlDark;
             button_cancel.FlatAppearance.BorderColor = SystemColors.ActiveBorder;
             button_cancel.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            button_cancel.Location = new Point(631, 406);
+            button_cancel.Location = new Point(593, 405);
             button_cancel.Name = "button_cancel";
             button_cancel.Size = new Size(109, 39);
             button_cancel.TabIndex = 11;
@@ -406,16 +380,16 @@
             buttonReturnCourse.Name = "buttonReturnCourse";
             buttonReturnCourse.Size = new Size(109, 39);
             buttonReturnCourse.TabIndex = 14;
-            buttonReturnCourse.Text = "Return Course";
+            buttonReturnCourse.Text = "Remove Course";
             buttonReturnCourse.UseVisualStyleBackColor = false;
             buttonReturnCourse.Visible = false;
             buttonReturnCourse.Click += buttonReturnCourse_Click;
             // 
             // Form1
             // 
-            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1230, 453);
+            ClientSize = new Size(1246, 453);
             Controls.Add(buttonAddToCart);
             Controls.Add(buttonReturnCourse);
             Controls.Add(buttonRegisterCart);
@@ -447,8 +421,6 @@
         private Label label2;
         private GroupBox groupBoxTerm;
         private Label label3;
-        private ComboBox comboBox2;
-        private TextBox textBoxCourses;
         private GroupBox groupBoxCourses;
         private GroupBox groupBoxCourseDescription;
         private Label label_CourseName;
