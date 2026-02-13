@@ -1,10 +1,12 @@
 USE UniRegistration;
+GO
 
 -- Disable all constraints
-EXEC sp_MSforeachtable "ALTER TABLE ? NOCHECK CONSTRAINT all";
+--EXEC sp_MSforeachtable "ALTER TABLE ? NOCHECK CONSTRAINT all";
 
 -- Drop views
 DROP VIEW IF EXISTS mv_StudentCompletedCourses;
+GO
 
 -- Drop tables
 DROP TABLE IF EXISTS Cart
@@ -18,6 +20,7 @@ DROP TABLE IF EXISTS Student;
 DROP TABLE IF EXISTS Instructor;
 DROP TABLE IF EXISTS Department;
 DROP TABLE IF EXISTS College;
+GO
 
 CREATE TABLE College (
     college_id INT PRIMARY KEY,
@@ -110,6 +113,7 @@ CREATE TABLE Enrollment (
     student_id INT NOT NULL,
 	course_id INT NOT NULL,
     section_id INT NOT NULL,
+	enrollment_date DATE NOT NULL DEFAULT GETDATE(),
 	status VARCHAR(20) DEFAULT 'Enrolled' CHECK (status IN ('Enrolled', 'Completed', 'Withdrawn')),
     grade VARCHAR(2) NULL CHECK (grade IN ('A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C+', 'D', 'F', 'I', 'W')), -- I=Incomplete, W=Withdrawn
     FOREIGN KEY (student_id) REFERENCES Student(student_id),
@@ -128,28 +132,21 @@ CREATE TABLE Cart (
     FOREIGN KEY (section_id) REFERENCES CourseSection(section_id),
     CONSTRAINT UQ_CartItem UNIQUE (student_id, section_id)
 );
-
-
-SET ANSI_NULLS ON
-SET QUOTED_IDENTIFIER ON
 GO
 
-/******** MATERIALIZED VIEWS ***********/
-/* 
-MV 3: Completed courses with grades (for prerequisites)
-*/
+
+-- MV: Completed courses with grades (for prerequisites)
 CREATE VIEW mv_StudentCompletedCourses
 WITH SCHEMABINDING
 AS
 SELECT 
-    e.enrollment_id, -- Include primary key for uniqueness
+    e.enrollment_id,
     e.student_id,
     e.course_id,
     c.course_code,
     c.title,
     e.grade,
     e.section_id,
-    -- Must include all GROUP BY columns in SELECT
     cs.term,
     cs.year
 FROM dbo.Enrollment e

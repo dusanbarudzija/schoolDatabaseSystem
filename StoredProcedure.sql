@@ -9,9 +9,9 @@ IF OBJECT_ID('sp_RemoveFromCart', 'P') IS NOT NULL DROP PROCEDURE sp_RemoveFromC
 IF OBJECT_ID('sp_AddToCart', 'P') IS NOT NULL DROP PROCEDURE sp_AddToCart;
 IF OBJECT_ID('sp_RegisterStudent', 'P') IS NOT NULL DROP PROCEDURE sp_RegisterStudent;
 IF OBJECT_ID('sp_RemoveEnrolledCourse', 'P') IS NOT NULL DROP PROCEDURE sp_RemoveEnrolledCourse;
+GO
 
 -- Get all students
-GO
 CREATE PROCEDURE sp_GetAllStudents
 AS
 BEGIN
@@ -208,33 +208,71 @@ BEGIN
 			RETURN;
         END
 
-		-- Check if prereqs met (using materialized  view)
+		-- Check if prereqs met (using materialized view)
 		IF EXISTS (
             SELECT 1
             FROM Prerequisite p
             WHERE p.course_id = @CourseId
-              AND p.prerequisite_course_id NOT IN (
-                  SELECT mv.course_id
+              AND NOT EXISTS (
+                  SELECT 1
                   FROM mv_StudentCompletedCourses mv
                   WHERE mv.student_id = @StudentId
-                    AND mv.grade >= p.minimum_grade
+                    AND mv.course_id = p.prerequisite_course_id
+                    AND (
+                        CASE mv.grade
+                            WHEN 'A+' THEN 12 WHEN 'A' THEN 11 WHEN 'A-' THEN 10
+                            WHEN 'B+' THEN 9  WHEN 'B' THEN 8  WHEN 'B-' THEN 7
+                            WHEN 'C+' THEN 6  WHEN 'C' THEN 5  WHEN 'C-' THEN 4
+                            WHEN 'D'  THEN 3  WHEN 'F' THEN 1
+                            ELSE 0
+                        END
+                    ) >= (
+                        CASE p.minimum_grade
+                            WHEN 'A+' THEN 12 WHEN 'A' THEN 11 WHEN 'A-' THEN 10
+                            WHEN 'B+' THEN 9  WHEN 'B' THEN 8  WHEN 'B-' THEN 7
+                            WHEN 'C+' THEN 6  WHEN 'C' THEN 5  WHEN 'C-' THEN 4
+                            WHEN 'D'  THEN 3  WHEN 'F' THEN 1
+                            ELSE 1
+                        END
+                    )
               )
         )
 
-		-- Get list of missing prerequisites
+		
 		BEGIN
+		-- Get list of missing prerequisites
 			DECLARE @MissingCourses VARCHAR(1000);
-            
-			SELECT @MissingCourses = STRING_AGG(c.course_code + ' (' + c.title + ')', ', ')
-			FROM Prerequisite p
-			JOIN Course c ON p.prerequisite_course_id = c.course_id
-			WHERE p.course_id = @CourseId
-			AND p.prerequisite_course_id NOT IN (
-				SELECT mv.course_id
-				FROM mv_StudentCompletedCourses mv
-				WHERE mv.student_id = @StudentId
-				AND mv.grade >= p.minimum_grade
-			);
+
+			SELECT @MissingCourses = STRING_AGG(
+                c.course_code + ' (' + c.title + ') - Need ' + p.minimum_grade + ' or better', 
+                ', '
+            )
+            FROM Prerequisite p
+            JOIN Course c ON p.prerequisite_course_id = c.course_id
+            WHERE p.course_id = @CourseId
+              AND NOT EXISTS (
+                  SELECT 1
+                  FROM mv_StudentCompletedCourses mv
+                  WHERE mv.student_id = @StudentId
+                    AND mv.course_id = p.prerequisite_course_id
+                    AND (
+                        CASE mv.grade
+                            WHEN 'A+' THEN 12 WHEN 'A' THEN 11 WHEN 'A-' THEN 10
+                            WHEN 'B+' THEN 9  WHEN 'B' THEN 8  WHEN 'B-' THEN 7
+                            WHEN 'C+' THEN 6  WHEN 'C' THEN 5  WHEN 'C-' THEN 4
+                            WHEN 'D'  THEN 3  WHEN 'F' THEN 1
+                            ELSE 0
+                        END
+                    ) >= (
+                        CASE p.minimum_grade
+                            WHEN 'A+' THEN 12 WHEN 'A' THEN 11 WHEN 'A-' THEN 10
+                            WHEN 'B+' THEN 9  WHEN 'B' THEN 8  WHEN 'B-' THEN 7
+                            WHEN 'C+' THEN 6  WHEN 'C' THEN 5  WHEN 'C-' THEN 4
+                            WHEN 'D'  THEN 3  WHEN 'F' THEN 1
+                            ELSE 1
+                        END
+                    )
+              );
 			SET @ResultMessage = 'Prerequisites not met: ' + ISNULL(@MissingCourses, 'Unknown prerequisites');
 			ROLLBACK;
             RETURN;

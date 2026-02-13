@@ -26,8 +26,8 @@ namespace SchoolDatabaseSystem.Data
         }
 
 
-        // STORED PROCEDURE METHOD 1: Returns success/message
-        // For: INSERT/UPDATE/DELETE 
+        // Execute INSERT/UPDATE/DELETE STORED PROCEDURE
+        // Returns success/message
         public static bool ExecuteStoredProcedure(
             string procedureName,
             SqlParameter[] parameters,
